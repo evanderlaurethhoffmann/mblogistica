@@ -9,38 +9,128 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as CargasRouteImport } from './routes/cargas'
+import { Route as CadastrosRouteImport } from './routes/cadastros'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CadastrosIndexRouteImport } from './routes/cadastros.index'
+import { Route as CadastrosMotoristasRouteImport } from './routes/cadastros.motoristas'
+import { Route as CadastrosFiliaisRouteImport } from './routes/cadastros.filiais'
+import { Route as CadastrosConferentesRouteImport } from './routes/cadastros.conferentes'
 
+const CargasRoute = CargasRouteImport.update({
+  id: '/cargas',
+  path: '/cargas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CadastrosRoute = CadastrosRouteImport.update({
+  id: '/cadastros',
+  path: '/cadastros',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CadastrosIndexRoute = CadastrosIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CadastrosRoute,
+} as any)
+const CadastrosMotoristasRoute = CadastrosMotoristasRouteImport.update({
+  id: '/motoristas',
+  path: '/motoristas',
+  getParentRoute: () => CadastrosRoute,
+} as any)
+const CadastrosFiliaisRoute = CadastrosFiliaisRouteImport.update({
+  id: '/filiais',
+  path: '/filiais',
+  getParentRoute: () => CadastrosRoute,
+} as any)
+const CadastrosConferentesRoute = CadastrosConferentesRouteImport.update({
+  id: '/conferentes',
+  path: '/conferentes',
+  getParentRoute: () => CadastrosRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/cadastros': typeof CadastrosRouteWithChildren
+  '/cargas': typeof CargasRoute
+  '/cadastros/conferentes': typeof CadastrosConferentesRoute
+  '/cadastros/filiais': typeof CadastrosFiliaisRoute
+  '/cadastros/motoristas': typeof CadastrosMotoristasRoute
+  '/cadastros/': typeof CadastrosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/cargas': typeof CargasRoute
+  '/cadastros/conferentes': typeof CadastrosConferentesRoute
+  '/cadastros/filiais': typeof CadastrosFiliaisRoute
+  '/cadastros/motoristas': typeof CadastrosMotoristasRoute
+  '/cadastros': typeof CadastrosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/cadastros': typeof CadastrosRouteWithChildren
+  '/cargas': typeof CargasRoute
+  '/cadastros/conferentes': typeof CadastrosConferentesRoute
+  '/cadastros/filiais': typeof CadastrosFiliaisRoute
+  '/cadastros/motoristas': typeof CadastrosMotoristasRoute
+  '/cadastros/': typeof CadastrosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/cadastros'
+    | '/cargas'
+    | '/cadastros/conferentes'
+    | '/cadastros/filiais'
+    | '/cadastros/motoristas'
+    | '/cadastros/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/cargas'
+    | '/cadastros/conferentes'
+    | '/cadastros/filiais'
+    | '/cadastros/motoristas'
+    | '/cadastros'
+  id:
+    | '__root__'
+    | '/'
+    | '/cadastros'
+    | '/cargas'
+    | '/cadastros/conferentes'
+    | '/cadastros/filiais'
+    | '/cadastros/motoristas'
+    | '/cadastros/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CadastrosRoute: typeof CadastrosRouteWithChildren
+  CargasRoute: typeof CargasRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/cargas': {
+      id: '/cargas'
+      path: '/cargas'
+      fullPath: '/cargas'
+      preLoaderRoute: typeof CargasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cadastros': {
+      id: '/cadastros'
+      path: '/cadastros'
+      fullPath: '/cadastros'
+      preLoaderRoute: typeof CadastrosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +138,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cadastros/': {
+      id: '/cadastros/'
+      path: '/'
+      fullPath: '/cadastros/'
+      preLoaderRoute: typeof CadastrosIndexRouteImport
+      parentRoute: typeof CadastrosRoute
+    }
+    '/cadastros/motoristas': {
+      id: '/cadastros/motoristas'
+      path: '/motoristas'
+      fullPath: '/cadastros/motoristas'
+      preLoaderRoute: typeof CadastrosMotoristasRouteImport
+      parentRoute: typeof CadastrosRoute
+    }
+    '/cadastros/filiais': {
+      id: '/cadastros/filiais'
+      path: '/filiais'
+      fullPath: '/cadastros/filiais'
+      preLoaderRoute: typeof CadastrosFiliaisRouteImport
+      parentRoute: typeof CadastrosRoute
+    }
+    '/cadastros/conferentes': {
+      id: '/cadastros/conferentes'
+      path: '/conferentes'
+      fullPath: '/cadastros/conferentes'
+      preLoaderRoute: typeof CadastrosConferentesRouteImport
+      parentRoute: typeof CadastrosRoute
+    }
   }
 }
 
+interface CadastrosRouteChildren {
+  CadastrosConferentesRoute: typeof CadastrosConferentesRoute
+  CadastrosFiliaisRoute: typeof CadastrosFiliaisRoute
+  CadastrosMotoristasRoute: typeof CadastrosMotoristasRoute
+  CadastrosIndexRoute: typeof CadastrosIndexRoute
+}
+
+const CadastrosRouteChildren: CadastrosRouteChildren = {
+  CadastrosConferentesRoute: CadastrosConferentesRoute,
+  CadastrosFiliaisRoute: CadastrosFiliaisRoute,
+  CadastrosMotoristasRoute: CadastrosMotoristasRoute,
+  CadastrosIndexRoute: CadastrosIndexRoute,
+}
+
+const CadastrosRouteWithChildren = CadastrosRoute._addFileChildren(
+  CadastrosRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CadastrosRoute: CadastrosRouteWithChildren,
+  CargasRoute: CargasRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
