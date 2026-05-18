@@ -14,7 +14,144 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      branches: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          number: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          number: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          number?: string
+        }
+        Relationships: []
+      }
+      checkers: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      drivers: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      loads: {
+        Row: {
+          branch_id: string
+          checker_id: string
+          closed_at: string | null
+          created_at: string
+          driver_id: string
+          id: string
+          status: string
+        }
+        Insert: {
+          branch_id: string
+          checker_id: string
+          closed_at?: string | null
+          created_at?: string
+          driver_id: string
+          id?: string
+          status?: string
+        }
+        Update: {
+          branch_id?: string
+          checker_id?: string
+          closed_at?: string | null
+          created_at?: string
+          driver_id?: string
+          id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loads_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loads_checker_id_fkey"
+            columns: ["checker_id"]
+            isOneToOne: false
+            referencedRelation: "checkers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loads_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      volumes: {
+        Row: {
+          barcode: string
+          created_at: string
+          id: string
+          load_id: string
+        }
+        Insert: {
+          barcode: string
+          created_at?: string
+          id?: string
+          load_id: string
+        }
+        Update: {
+          barcode?: string
+          created_at?: string
+          id?: string
+          load_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "volumes_load_id_fkey"
+            columns: ["load_id"]
+            isOneToOne: false
+            referencedRelation: "loads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
