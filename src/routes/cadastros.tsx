@@ -1,9 +1,14 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { Card } from "@/components/ui/card";
+import { AdminOnly } from "@/components/Layout";
 
 export const Route = createFileRoute("/cadastros")({
   head: () => ({ meta: [{ title: "Cadastros — Romaneio" }] }),
-  component: CadastrosLayout,
+  component: () => (
+    <AdminOnly>
+      <CadastrosLayout />
+    </AdminOnly>
+  ),
 });
 
 const tabs = [

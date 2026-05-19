@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UsuariosRouteImport } from './routes/usuarios'
+import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as CargasRouteImport } from './routes/cargas'
 import { Route as CadastrosRouteImport } from './routes/cadastros'
 import { Route as IndexRouteImport } from './routes/index'
@@ -17,6 +19,16 @@ import { Route as CadastrosMotoristasRouteImport } from './routes/cadastros.moto
 import { Route as CadastrosFiliaisRouteImport } from './routes/cadastros.filiais'
 import { Route as CadastrosConferentesRouteImport } from './routes/cadastros.conferentes'
 
+const UsuariosRoute = UsuariosRouteImport.update({
+  id: '/usuarios',
+  path: '/usuarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CargasRoute = CargasRouteImport.update({
   id: '/cargas',
   path: '/cargas',
@@ -57,6 +69,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cadastros': typeof CadastrosRouteWithChildren
   '/cargas': typeof CargasRoute
+  '/configuracoes': typeof ConfiguracoesRoute
+  '/usuarios': typeof UsuariosRoute
   '/cadastros/conferentes': typeof CadastrosConferentesRoute
   '/cadastros/filiais': typeof CadastrosFiliaisRoute
   '/cadastros/motoristas': typeof CadastrosMotoristasRoute
@@ -65,6 +79,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cargas': typeof CargasRoute
+  '/configuracoes': typeof ConfiguracoesRoute
+  '/usuarios': typeof UsuariosRoute
   '/cadastros/conferentes': typeof CadastrosConferentesRoute
   '/cadastros/filiais': typeof CadastrosFiliaisRoute
   '/cadastros/motoristas': typeof CadastrosMotoristasRoute
@@ -75,6 +91,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/cadastros': typeof CadastrosRouteWithChildren
   '/cargas': typeof CargasRoute
+  '/configuracoes': typeof ConfiguracoesRoute
+  '/usuarios': typeof UsuariosRoute
   '/cadastros/conferentes': typeof CadastrosConferentesRoute
   '/cadastros/filiais': typeof CadastrosFiliaisRoute
   '/cadastros/motoristas': typeof CadastrosMotoristasRoute
@@ -86,6 +104,8 @@ export interface FileRouteTypes {
     | '/'
     | '/cadastros'
     | '/cargas'
+    | '/configuracoes'
+    | '/usuarios'
     | '/cadastros/conferentes'
     | '/cadastros/filiais'
     | '/cadastros/motoristas'
@@ -94,6 +114,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/cargas'
+    | '/configuracoes'
+    | '/usuarios'
     | '/cadastros/conferentes'
     | '/cadastros/filiais'
     | '/cadastros/motoristas'
@@ -103,6 +125,8 @@ export interface FileRouteTypes {
     | '/'
     | '/cadastros'
     | '/cargas'
+    | '/configuracoes'
+    | '/usuarios'
     | '/cadastros/conferentes'
     | '/cadastros/filiais'
     | '/cadastros/motoristas'
@@ -113,10 +137,26 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CadastrosRoute: typeof CadastrosRouteWithChildren
   CargasRoute: typeof CargasRoute
+  ConfiguracoesRoute: typeof ConfiguracoesRoute
+  UsuariosRoute: typeof UsuariosRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/usuarios': {
+      id: '/usuarios'
+      path: '/usuarios'
+      fullPath: '/usuarios'
+      preLoaderRoute: typeof UsuariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/configuracoes': {
+      id: '/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof ConfiguracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cargas': {
       id: '/cargas'
       path: '/cargas'
@@ -191,6 +231,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CadastrosRoute: CadastrosRouteWithChildren,
   CargasRoute: CargasRoute,
+  ConfiguracoesRoute: ConfiguracoesRoute,
+  UsuariosRoute: UsuariosRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
