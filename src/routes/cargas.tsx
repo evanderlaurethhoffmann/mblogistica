@@ -66,6 +66,13 @@ function CargasPage() {
       if (vErr) throw vErr;
       if (!vols?.length) throw new Error("Carga sem volumes — bipe ao menos um volume.");
 
+      const pending = vols.filter((v: any) => v.total_boxes != null && !v.group_completed);
+      if (pending.length > 0) {
+        throw new Error(
+          `Existem ${pending.length} grupo(s) fracionado(s) pendente(s). Conclua todos os volumes antes de fechar a carga.`,
+        );
+      }
+
       const checker = checkers.find((c: any) => c.id === checkerId);
       const driver = drivers.find((d: any) => d.id === driverId);
 
