@@ -66,10 +66,23 @@ function CargasPage() {
       if (vErr) throw vErr;
       if (!vols?.length) throw new Error("Carga sem volumes — bipe ao menos um volume.");
 
-      const pending = vols.filter((v: any) => v.total_boxes != null && !v.group_completed);
-      if (pending.length > 0) {
+      // Group by base barcode (strip " N/M" suffix) and check completeness
+      const groups = new Map<string, { total: number; count: number }>();
+      for (const v of vols as any[]) {
+        const base = String(v.barcode).replace(/\s+\d+\/\d+\s*$/, "").trim();
+        const total = v.total_boxes ?? 1;
+        const g = groups.get(base) ?? { total, count: 0 };
+        g.total = total;
+        g.count += 1;
+        groups.set(base, g);
+      }
+      const missing: string[] = [];
+      for (const [base, g] of groups.entries()) {
+        if (g.count < g.total) missing.push(`${base} (${g.count}/${g.total})`);
+      }
+      if (missing.length > 0) {
         throw new Error(
-          `Existem ${pending.length} grupo(s) fracionado(s) pendente(s). Conclua todos os volumes antes de fechar a carga.`,
+          `Volumes incompletos no pátio: ${missing.join(", ")}. Bipe as caixas faltantes antes de fechar a carga.`,
         );
       }
 
