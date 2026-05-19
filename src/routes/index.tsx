@@ -116,11 +116,9 @@ function ColetaPage() {
     try {
       let targetBranchId = branchId;
 
-      if (!targetBranchId) {
-        if (!raw.includes("-")) {
-          toast.error("Selecione uma filial ou bipe um código no formato 82-2218841.");
-          return;
-        }
+      // PRIORIDADE MÁXIMA: se o código tem hífen, a filial vem do prefixo
+      // e sobrescreve qualquer seleção manual do dropdown.
+      if (raw.includes("-")) {
         const prefix = raw.split("-")[0].trim();
         const prefixNum = parseInt(prefix, 10);
         const found = branches.find(
@@ -131,8 +129,16 @@ function ColetaPage() {
           return;
         }
         targetBranchId = found.id;
-        setBranchId(found.id);
-        toast.success(`Filial ${found.number} — ${found.name} selecionada automaticamente.`);
+        if (branchId !== found.id) {
+          setBranchId(found.id);
+          toast.success(`Filial ${found.number} — ${found.name} detectada pelo código.`);
+        }
+      } else {
+        // Sem hífen: contingência — usa a filial selecionada manualmente.
+        if (!targetBranchId) {
+          toast.error("Selecione uma filial ou bipe um código no formato 82-2218841.");
+          return;
+        }
       }
 
       const targetLoad = await findOrCreateLoad(targetBranchId);
@@ -146,6 +152,9 @@ function ColetaPage() {
       await Promise.all([refetchLoad(), refetchVolumes()]);
     } catch (err) {
       toast.error((err as Error).message);
+    } finally {
+      setCode("");
+      inputRef.current?.focus();
     }
   };
 
