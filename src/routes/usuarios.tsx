@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Trash2, Plus, UserCog } from "lucide-react";
 import { toast } from "sonner";
 import { AdminOnly } from "@/components/Layout";
+import { createUser, deleteUser } from "@/lib/users.functions";
 
 export const Route = createFileRoute("/usuarios")({
   head: () => ({ meta: [{ title: "Usuários — Romaneio" }] }),
@@ -18,6 +20,8 @@ export const Route = createFileRoute("/usuarios")({
 
 function UsuariosPage() {
   const qc = useQueryClient();
+  const callCreate = useServerFn(createUser);
+  const callDelete = useServerFn(deleteUser);
   const [form, setForm] = useState({ name: "", email: "", password: "", role: "operator" as "admin" | "operator" });
 
   const { data: users = [] } = useQuery({
@@ -40,21 +44,7 @@ function UsuariosPage() {
     mutationFn: async () => {
       if (!form.name || !form.email || !form.password) throw new Error("Preencha todos os campos.");
       if (form.password.length < 6) throw new Error("Senha deve ter ao menos 6 caracteres.");
-
-      const { data, error } = await supabase.auth.signUp({
-        email: form.email,
-        password: form.password,
-        options: {
-          data: { name: form.name, role: form.role },
-          emailRedirectTo: window.location.origin,
-        },
-      });
-      if (error) throw error;
-      // Force the desired role (trigger may have inserted 'operator')
-      if (data.user) {
-        await supabase.from("user_roles").delete().eq("user_id", data.user.id);
-        await supabase.from("user_roles").insert({ user_id: data.user.id, role: form.role });
-      }
+      await callCreate({ data: form });
     },
     onSuccess: () => {
       setForm({ name: "", email: "", password: "", role: "operator" });
@@ -79,15 +69,11 @@ function UsuariosPage() {
 
   const remove = useMutation({
     mutationFn: async (id: string) => {
-      // Deletes profile (cascades roles). auth.users row remains; admin must remove
-      // from auth panel if total purge is needed — but profile/role removal blocks app access.
-      const { error } = await supabase.from("profiles").delete().eq("id", id);
-      if (error) throw error;
-      await supabase.from("user_roles").delete().eq("user_id", id);
+      await callDelete({ data: { userId: id } });
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["users-with-roles"] });
-      toast.success("Usuário removido do sistema.");
+      toast.success("Usuário removido.");
     },
     onError: (e: Error) => toast.error(e.message),
   });
