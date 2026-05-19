@@ -186,8 +186,7 @@ function ColetaPage() {
             ref={inputRef}
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            disabled={!ready}
-            placeholder={ready ? "Aguardando código..." : "Selecione uma filial"}
+            placeholder={branchId ? "Aguardando código..." : "Bipe (ex: 82-2218841) — filial será detectada"}
             className="text-lg h-12 font-mono"
             autoComplete="off"
           />
