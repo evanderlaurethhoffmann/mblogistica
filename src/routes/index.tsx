@@ -183,14 +183,18 @@ function ColetaPage() {
       const targetLoad = await findOrCreateLoad(targetBranchId);
 
       // Find existing rows for the same base in this load
-      const { data: existing, error: qErr } = await supabase
+      const { data: matches, error: qErr } = await supabase
         .from("volumes")
         .select("*")
         .eq("load_id", targetLoad.id)
-        .or(`barcode.eq.${base},barcode.like.${base} %`);
+        .like("barcode", `${base}%`);
       if (qErr) throw qErr;
+      const existing = (matches ?? []).filter((v: any) => {
+        const bc = String(v.barcode);
+        return bc === base || bc.startsWith(`${base} `);
+      });
 
-      if (!existing || existing.length === 0) {
+      if (existing.length === 0) {
         // First time → ask the operator for total boxes
         setAskTotal({ base, targetLoadId: targetLoad.id });
         setTotalStr("");
