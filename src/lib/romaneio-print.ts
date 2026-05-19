@@ -6,47 +6,73 @@ export function printRomaneio(opts: {
   volumes: string[];
 }) {
   const dateStr = opts.emittedAt.toLocaleString("pt-BR");
-  const rows = opts.volumes.map((v) => `<tr><td>${escapeHtml(v)}</td></tr>`).join("");
-  // Pad with empty rows up to a minimum (visual fidelity with model)
-  const minRows = Math.max(0, 30 - opts.volumes.length);
-  const padding = Array.from({ length: minRows }).map(() => `<tr><td>&nbsp;</td></tr>`).join("");
+
+  // Build a 3-column table: each row contains up to 3 volume codes
+  const cols = 3;
+  const rowsCount = Math.ceil(opts.volumes.length / cols);
+  const minRows = Math.max(rowsCount, 20);
+  let bodyRows = "";
+  for (let r = 0; r < minRows; r++) {
+    const a = opts.volumes[r * cols] ?? "";
+    const b = opts.volumes[r * cols + 1] ?? "";
+    const c = opts.volumes[r * cols + 2] ?? "";
+    bodyRows += `<tr><td>${escapeHtml(a) || "&nbsp;"}</td><td>${escapeHtml(b) || "&nbsp;"}</td><td>${escapeHtml(c) || "&nbsp;"}</td></tr>`;
+  }
 
   const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <title>Romaneio de Entregas</title>
 <style>
   * { box-sizing: border-box; }
-  body { font-family: Arial, Helvetica, sans-serif; margin: 0; padding: 16px; color: #000; }
+  body { font-family: Arial, Helvetica, sans-serif; margin: 0; padding: 12px; color: #000; font-size: 12px; }
   .sheet { width: 100%; max-width: 800px; margin: 0 auto; }
   .row { display: flex; border: 1px solid #000; border-top: none; }
   .row:first-of-type { border-top: 1px solid #000; }
-  .cell { padding: 8px 10px; border-right: 1px solid #000; }
+  .cell { padding: 5px 8px; border-right: 1px solid #000; }
   .cell:last-child { border-right: none; }
-  .header { font-weight: 900; font-size: 22px; text-align: center; padding: 14px; }
-  .brand { font-weight: 900; font-size: 28px; color: #b3001b; padding: 14px; display: flex; align-items: center; justify-content: center; gap: 6px; flex: 0 0 35%; border-right: 1px solid #000; }
-  .brand small { color: #1a3a8a; font-size: 14px; letter-spacing: 2px; display:block; }
-  .brand-title { flex: 1; }
-  .label { font-size: 11px; color: #333; text-transform: uppercase; font-weight: 700; }
-  .value { font-size: 14px; font-weight: 600; min-height: 18px; margin-top: 2px; }
-  .filial-row .cell { padding: 6px 10px; }
-  .filial-label { flex: 0 0 35%; }
-  .filial-label .value { font-size: 32px; font-weight: 900; letter-spacing: 1px; }
-  .filial-value { flex: 1; display: flex; align-items: center; font-size: 22px; font-weight: 700; }
-  table.volumes { width: 100%; border-collapse: collapse; border: 1px solid #000; border-top: none; }
-  table.volumes thead th { border: 1px solid #000; padding: 6px; font-weight: 900; font-size: 13px; text-align: center; }
-  table.volumes tbody td { border: 1px solid #000; padding: 4px 8px; height: 22px; font-size: 12px; font-family: 'Courier New', monospace; }
-  .total { display: flex; border: 1px solid #000; border-top: none; padding: 8px 10px; font-weight: 900; font-size: 13px; text-transform: uppercase; gap: 8px; }
-  .total span.qty { font-size: 16px; }
-  .sign-row { display: flex; border: 1px solid #000; border-top: none; }
-  .sign-cell { flex: 1; padding: 14px 10px; border-right: 1px solid #000; min-height: 50px; }
-  .sign-cell:last-child { border-right: none; }
-  .sign-cell .label { display: block; margin-bottom: 18px; }
-  .moto-row { padding: 10px; border: 1px solid #000; border-top: none; font-weight: 700; font-size: 13px; text-transform: uppercase; min-height: 36px; }
-  @media print {
-    @page { size: A4; margin: 10mm; }
-    body { padding: 0; }
-    .no-print { display: none; }
+
+  .header-row { display: flex; align-items: center; border: 1px solid #000; padding: 8px 12px; gap: 16px; }
+  .brand-text { font-weight: 900; font-size: 16px; letter-spacing: 0.5px; white-space: nowrap; }
+  .doc-title { flex: 1; text-align: center; font-weight: 900; font-size: 18px; letter-spacing: 1px; }
+
+  .label { font-size: 10px; color: #333; text-transform: uppercase; font-weight: 700; }
+  .value { font-size: 12px; font-weight: 600; min-height: 14px; margin-top: 1px; }
+
+  .filial-row .cell { padding: 4px 8px; }
+  .filial-label { flex: 0 0 28%; }
+  .filial-label .value { font-size: 22px; font-weight: 900; letter-spacing: 1px; }
+  .filial-value { flex: 1; display: flex; align-items: center; font-size: 16px; font-weight: 700; }
+
+  table.volumes { width: 100%; border-collapse: collapse; border: 1px solid #000; border-top: none; table-layout: fixed; }
+  table.volumes thead th { border: 1px solid #000; padding: 4px; font-weight: 900; font-size: 11px; text-align: center; }
+  table.volumes tbody td {
+    border: 1px solid #000;
+    padding: 2px 6px;
+    height: 16px;
+    font-size: 11pt;
+    font-family: 'Courier New', monospace;
+    width: 33.33%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  .actions { text-align: center; margin: 16px 0; }
+
+  .total { display: flex; border: 1px solid #000; border-top: none; padding: 5px 8px; font-weight: 900; font-size: 12px; text-transform: uppercase; gap: 8px; }
+  .total span.qty { font-size: 14px; }
+
+  .moto-row { padding: 6px 8px; border: 1px solid #000; border-top: none; font-weight: 700; font-size: 12px; text-transform: uppercase; }
+
+  .sign-row { display: flex; border: 1px solid #000; border-top: none; }
+  .sign-cell { flex: 1; padding: 8px 10px; border-right: 1px solid #000; min-height: 38px; }
+  .sign-cell:last-child { border-right: none; }
+  .sign-cell .label { display: block; margin-bottom: 14px; }
+
+  @media print {
+    @page { size: A4; margin: 10mm 12mm; }
+    body { padding: 0; font-size: 11px; }
+    .no-print { display: none; }
+    table.volumes tbody td { font-size: 11pt; padding: 1px 5px; height: 14px; }
+  }
+  .actions { text-align: center; margin: 12px 0; }
   .actions button { padding: 10px 24px; font-size: 14px; cursor: pointer; }
 </style>
 </head><body>
@@ -55,11 +81,9 @@ export function printRomaneio(opts: {
 </div>
 <div class="sheet">
 
-  <div class="row">
-    <div class="brand">
-      <div>♥<span style="color:#1a3a8a">+</span><br/>MB<small>FARMÁCIAS</small></div>
-    </div>
-    <div class="cell brand-title header" style="flex:1">ROMANEIO DE ENTREGAS</div>
+  <div class="header-row">
+    <div class="brand-text">MB Farmácias</div>
+    <div class="doc-title">ROMANEIO DE ENTREGAS</div>
   </div>
 
   <div class="row">
@@ -85,10 +109,9 @@ export function printRomaneio(opts: {
   </div>
 
   <table class="volumes">
-    <thead><tr><th>VOLUMES / NFs</th></tr></thead>
+    <thead><tr><th colspan="3">VOLUMES / NFs</th></tr></thead>
     <tbody>
-      ${rows}
-      ${padding}
+      ${bodyRows}
     </tbody>
   </table>
 
