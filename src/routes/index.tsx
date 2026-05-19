@@ -76,19 +76,22 @@ function ColetaPage() {
     },
   });
 
-  const addVolume = useMutation({
-    mutationFn: async (barcode: string) => {
-      if (!load) throw new Error("Selecione uma filial primeiro.");
-      const { error } = await supabase.from("volumes").insert({ load_id: load.id, barcode });
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      refetchVolumes();
-      setCode("");
-      inputRef.current?.focus();
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
+  const findOrCreateLoad = async (bId: string) => {
+    const { data: existing } = await supabase
+      .from("loads")
+      .select("*")
+      .eq("branch_id", bId)
+      .eq("status", "Em aberto")
+      .maybeSingle();
+    if (existing) return existing;
+    const { data: created, error } = await supabase
+      .from("loads")
+      .insert({ branch_id: bId, status: "Em aberto" })
+      .select()
+      .single();
+    if (error) throw error;
+    return created;
+  };
 
   const removeVolume = useMutation({
     mutationFn: async (id: string) => {
@@ -102,14 +105,46 @@ function ColetaPage() {
     inputRef.current?.focus();
   }, [load?.id]);
 
-  const ready = !!load;
+  const ready = true;
   const branchInfo = branches.find((b) => b.id === branchId);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const v = code.trim();
-    if (!v) return;
-    addVolume.mutate(v);
+    const raw = code.trim();
+    if (!raw) return;
+
+    try {
+      let targetBranchId = branchId;
+      const match = raw.match(/^\s*(\d+)\s*[-–_/\s]+\s*(.+)$/);
+
+      if (!targetBranchId) {
+        if (!match) {
+          toast.error("Selecione uma filial ou bipe um código no formato 82-2218841.");
+          return;
+        }
+        const prefix = match[1];
+        const found = branches.find((b) => b.number === prefix);
+        if (!found) {
+          toast.error(`Filial ${prefix} não encontrada no cadastro.`);
+          return;
+        }
+        targetBranchId = found.id;
+        setBranchId(found.id);
+        toast.success(`Filial ${found.number} — ${found.name} selecionada automaticamente.`);
+      }
+
+      const targetLoad = await findOrCreateLoad(targetBranchId);
+      const { error } = await supabase
+        .from("volumes")
+        .insert({ load_id: targetLoad.id, barcode: raw });
+      if (error) throw error;
+
+      setCode("");
+      inputRef.current?.focus();
+      await Promise.all([refetchLoad(), refetchVolumes()]);
+    } catch (err) {
+      toast.error((err as Error).message);
+    }
   };
 
   return (
