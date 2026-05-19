@@ -115,15 +115,17 @@ function ColetaPage() {
 
     try {
       let targetBranchId = branchId;
-      const match = raw.match(/^\s*(\d+)\s*[-–_/\s]+\s*(.+)$/);
 
       if (!targetBranchId) {
-        if (!match) {
+        if (!raw.includes("-")) {
           toast.error("Selecione uma filial ou bipe um código no formato 82-2218841.");
           return;
         }
-        const prefix = match[1];
-        const found = branches.find((b) => b.number === prefix);
+        const prefix = raw.split("-")[0].trim();
+        const prefixNum = parseInt(prefix, 10);
+        const found = branches.find(
+          (b) => b.number.trim() === prefix || parseInt(b.number, 10) === prefixNum,
+        );
         if (!found) {
           toast.error(`Filial ${prefix} não encontrada no cadastro.`);
           return;
