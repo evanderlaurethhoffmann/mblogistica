@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ScanBarcode, Package2, Trash2, Split, Check, X } from "lucide-react";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
+} from "@/components/ui/dialog";
+import { ScanBarcode, Package2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -18,15 +21,37 @@ export const Route = createFileRoute("/")({
   component: ColetaPage,
 });
 
+// Strip any trailing "N/M" fraction so we can find the base code
+function extractBase(raw: string): string {
+  return raw.replace(/\s+\d+\/\d+\s*$/, "").trim();
+}
+
+function beep() {
+  try {
+    const Ctx = (window as any).AudioContext || (window as any).webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.frequency.value = 880;
+    o.connect(g);
+    g.connect(ctx.destination);
+    g.gain.setValueAtTime(0.15, ctx.currentTime);
+    o.start();
+    setTimeout(() => { o.stop(); ctx.close(); }, 250);
+  } catch {}
+}
+
 function ColetaPage() {
   const { user } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
+  const totalInputRef = useRef<HTMLInputElement>(null);
   const [branchId, setBranchId] = useState<string>(() =>
     typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) ?? "" : ""
   );
   const [code, setCode] = useState("");
-  const [splittingId, setSplittingId] = useState<string | null>(null);
-  const [splitTotal, setSplitTotal] = useState("");
+  const [askTotal, setAskTotal] = useState<{ base: string; targetLoadId: string } | null>(null);
+  const [totalStr, setTotalStr] = useState("");
 
   useEffect(() => {
     if (branchId) localStorage.setItem(STORAGE_KEY, branchId);
@@ -108,6 +133,24 @@ function ColetaPage() {
 
   const branchInfo = branches.find((b) => b.id === branchId);
 
+  // Group volumes by base barcode for pending detection
+  const pendingGroups = useMemo(() => {
+    const map = new Map<string, { total: number; count: number }>();
+    for (const v of volumes as any[]) {
+      const base = extractBase(v.barcode);
+      const total = v.total_boxes ?? 1;
+      const g = map.get(base) ?? { total, count: 0 };
+      g.total = total;
+      g.count += 1;
+      map.set(base, g);
+    }
+    const pending: string[] = [];
+    for (const [base, g] of map.entries()) {
+      if (g.count < g.total) pending.push(`${base} (${g.count}/${g.total})`);
+    }
+    return pending;
+  }, [volumes]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const raw = code.trim();
@@ -115,9 +158,10 @@ function ColetaPage() {
 
     try {
       let targetBranchId = branchId;
+      const base = extractBase(raw);
 
-      if (raw.includes("-")) {
-        const prefix = raw.split("-")[0].trim();
+      if (base.includes("-")) {
+        const prefix = base.split("-")[0].trim();
         const prefixNum = parseInt(prefix, 10);
         const found = branches.find(
           (b) => b.number.trim() === prefix || parseInt(b.number, 10) === prefixNum,
@@ -131,47 +175,50 @@ function ColetaPage() {
           setBranchId(found.id);
           toast.success(`Filial ${found.number} — ${found.name} detectada pelo código.`);
         }
-      } else {
-        if (!targetBranchId) {
-          toast.error("Selecione uma filial ou bipe um código no formato 82-2218841.");
-          return;
-        }
+      } else if (!targetBranchId) {
+        toast.error("Selecione uma filial ou bipe um código no formato 82-2218841.");
+        return;
       }
 
       const targetLoad = await findOrCreateLoad(targetBranchId);
 
-      // Verifica se já existe um volume fracionado pendente para este código
-      const { data: existingFractional } = await supabase
+      // Find existing rows for the same base in this load
+      const { data: existing, error: qErr } = await supabase
         .from("volumes")
         .select("*")
         .eq("load_id", targetLoad.id)
-        .eq("barcode", raw)
-        .not("total_boxes", "is", null)
-        .eq("group_completed", false)
-        .order("created_at", { ascending: false })
-        .limit(1);
+        .or(`barcode.eq.${base},barcode.like.${base} %`);
+      if (qErr) throw qErr;
 
-      const pending = existingFractional?.[0] as any;
-      if (pending && pending.scanned_count < pending.total_boxes) {
-        const newCount = pending.scanned_count + 1;
-        const completed = newCount >= pending.total_boxes;
-        const { error } = await supabase
-          .from("volumes")
-          .update({ scanned_count: newCount, group_completed: completed })
-          .eq("id", pending.id);
-        if (error) throw error;
-        toast.success(
-          completed
-            ? `Grupo concluído: ${newCount}/${pending.total_boxes}`
-            : `Bipado: ${newCount}/${pending.total_boxes}`,
-        );
-      } else {
-        const { error } = await supabase
-          .from("volumes")
-          .insert({ load_id: targetLoad.id, barcode: raw });
-        if (error) throw error;
+      if (!existing || existing.length === 0) {
+        // First time → ask the operator for total boxes
+        setAskTotal({ base, targetLoadId: targetLoad.id });
+        setTotalStr("");
+        setCode("");
+        return;
       }
 
+      const total = (existing[0] as any).total_boxes ?? existing.length;
+      const count = existing.length;
+
+      if (count >= total) {
+        beep();
+        toast.error(`Atenção: todas as caixas do volume ${base} já foram bipadas (${total}/${total}).`);
+        return;
+      }
+
+      const nextIndex = count + 1;
+      const newBarcode = `${base} ${nextIndex}/${total}`;
+      const { error } = await supabase.from("volumes").insert({
+        load_id: targetLoad.id,
+        barcode: newBarcode,
+        total_boxes: total,
+        scanned_count: nextIndex,
+        group_completed: nextIndex >= total,
+      });
+      if (error) throw error;
+
+      toast.success(`Bipado: ${newBarcode}`);
       await Promise.all([refetchLoad(), refetchVolumes()]);
     } catch (err) {
       toast.error((err as Error).message);
@@ -181,70 +228,50 @@ function ColetaPage() {
     }
   };
 
-  // Atalho "+" para abrir fracionamento no item mais recente
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "+" && code.trim() === "" && volumes.length > 0 && !splittingId) {
-      e.preventDefault();
-      const latest = volumes[0] as any;
-      if (latest.total_boxes == null) {
-        setSplittingId(latest.id);
-        setSplitTotal("");
-      }
-    }
-  };
-
-  const openSplit = (id: string) => {
-    setSplittingId(id);
-    setSplitTotal("");
-  };
-
-  const confirmSplit = async () => {
-    if (!splittingId) return;
-    const total = parseInt(splitTotal, 10);
-    if (!Number.isFinite(total) || total < 2) {
-      toast.error("Informe um total de caixas válido (mínimo 2).");
+  const confirmTotal = async () => {
+    if (!askTotal) return;
+    const total = parseInt(totalStr, 10);
+    if (!Number.isFinite(total) || total < 1) {
+      toast.error("Informe um total de caixas válido (mínimo 1).");
+      totalInputRef.current?.focus();
       return;
     }
-    const { error } = await supabase
-      .from("volumes")
-      .update({ total_boxes: total, scanned_count: 0, group_completed: false })
-      .eq("id", splittingId);
+    const { base, targetLoadId } = askTotal;
+    const newBarcode = total === 1 ? `${base} 1/1` : `${base} 1/${total}`;
+    const { error } = await supabase.from("volumes").insert({
+      load_id: targetLoadId,
+      barcode: newBarcode,
+      total_boxes: total,
+      scanned_count: 1,
+      group_completed: total === 1,
+    });
     if (error) {
       toast.error(error.message);
       return;
     }
-    toast.success(`Volume marcado como fracionado (0/${total}). Bipe novamente para confirmar cada caixa.`);
-    setSplittingId(null);
-    setSplitTotal("");
+    toast.success(
+      total === 1
+        ? `Volume ${base} registrado.`
+        : `Volume ${base} aberto. Bipe novamente para 2/${total}.`,
+    );
+    setAskTotal(null);
+    setTotalStr("");
     await refetchVolumes();
     inputRef.current?.focus();
   };
 
-  const markGroupCompleted = async (id: string) => {
-    const v = volumes.find((x) => x.id === id) as any;
-    if (!v) return;
-    const { error } = await supabase
-      .from("volumes")
-      .update({ group_completed: true, scanned_count: v.total_boxes ?? v.scanned_count })
-      .eq("id", id);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    toast.success("Grupo marcado como concluído.");
-    refetchVolumes();
+  const cancelTotal = () => {
+    setAskTotal(null);
+    setTotalStr("");
+    inputRef.current?.focus();
   };
-
-  const pendingCount = volumes.filter(
-    (v: any) => v.total_boxes != null && !v.group_completed,
-  ).length;
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Coleta de Volumes</h1>
         <p className="text-sm text-muted-foreground">
-          Bipe os códigos. Para volumes fracionados (ex: caixa 1 de 2), pressione <kbd className="px-1.5 py-0.5 bg-secondary rounded text-xs">+</kbd> ou clique em <b>Fracionar</b>.
+          Bipe o código. No primeiro bipe de cada volume, informe quantas caixas ele tem no total.
         </p>
       </div>
 
@@ -278,8 +305,7 @@ function ColetaPage() {
             ref={inputRef}
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={branchId ? "Aguardando código... ( + para fracionar último )" : "Bipe (ex: 82-2218841) — filial será detectada"}
+            placeholder={branchId ? "Aguardando código..." : "Bipe (ex: 82-2218841) — filial será detectada"}
             className="text-lg h-12 font-mono"
             autoComplete="off"
           />
@@ -292,9 +318,9 @@ function ColetaPage() {
             <Package2 className="h-5 w-5" /> Volumes bipados
           </h2>
           <div className="flex items-center gap-2">
-            {pendingCount > 0 && (
+            {pendingGroups.length > 0 && (
               <span className="text-xs font-medium bg-amber-100 text-amber-900 px-2 py-1 rounded">
-                {pendingCount} pendente(s)
+                {pendingGroups.length} grupo(s) pendente(s)
               </span>
             )}
             <span className="text-sm font-mono bg-secondary px-3 py-1 rounded">
@@ -306,96 +332,57 @@ function ColetaPage() {
           <p className="text-sm text-muted-foreground text-center py-8">Nenhum volume bipado ainda.</p>
         ) : (
           <ul className="divide-y">
-            {volumes.map((v: any, i) => {
-              const isFractional = v.total_boxes != null;
-              const isPending = isFractional && !v.group_completed;
-              const isSplitting = splittingId === v.id;
-              return (
-                <li key={v.id} className="py-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <span className="text-xs text-muted-foreground w-8 shrink-0">#{volumes.length - i}</span>
-                      <span className="font-mono truncate">{v.barcode}</span>
-                      {isFractional && (
-                        <span
-                          className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
-                            isPending
-                              ? "bg-amber-100 text-amber-900"
-                              : "bg-green-100 text-green-900"
-                          }`}
-                        >
-                          {isPending ? "Pendente" : "Grupo OK"} ({v.scanned_count}/{v.total_boxes})
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-1 shrink-0">
-                      {!isFractional && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => openSplit(v.id)}
-                          className="gap-1 h-8"
-                          title="Marcar como volume fracionado"
-                        >
-                          <Split className="h-3.5 w-3.5" /> Fracionar
-                        </Button>
-                      )}
-                      {isPending && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => markGroupCompleted(v.id)}
-                          className="gap-1 h-8 text-green-700"
-                          title="Marcar grupo como concluído manualmente"
-                        >
-                          <Check className="h-3.5 w-3.5" /> Concluir
-                        </Button>
-                      )}
-                      <Button size="icon" variant="ghost" onClick={() => removeVolume.mutate(v.id)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </div>
-                  {isSplitting && (
-                    <div className="mt-2 ml-11 flex items-center gap-2">
-                      <Label className="text-xs">Total de caixas:</Label>
-                      <Input
-                        autoFocus
-                        type="number"
-                        min={2}
-                        value={splitTotal}
-                        onChange={(e) => setSplitTotal(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") { e.preventDefault(); confirmSplit(); }
-                          if (e.key === "Escape") { setSplittingId(null); inputRef.current?.focus(); }
-                        }}
-                        className="h-8 w-24"
-                        placeholder="Ex: 2"
-                      />
-                      <Button size="sm" onClick={confirmSplit} className="h-8 gap-1">
-                        <Check className="h-3.5 w-3.5" /> OK
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => { setSplittingId(null); inputRef.current?.focus(); }}
-                        className="h-8 gap-1"
-                      >
-                        <X className="h-3.5 w-3.5" /> Cancelar
-                      </Button>
-                    </div>
-                  )}
-                </li>
-              );
-            })}
+            {volumes.map((v: any, i) => (
+              <li key={v.id} className="py-2 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="text-xs text-muted-foreground w-8 shrink-0">#{volumes.length - i}</span>
+                  <span className="font-mono truncate">{v.barcode}</span>
+                </div>
+                <Button size="icon" variant="ghost" onClick={() => removeVolume.mutate(v.id)}>
+                  <Trash2 className="h-4 w-4 text-destructive" />
+                </Button>
+              </li>
+            ))}
           </ul>
         )}
-        {pendingCount > 0 && (
-          <p className="mt-4 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-2">
-            ⚠ Existem {pendingCount} grupo(s) fracionado(s) pendente(s). Bipe novamente o mesmo código para confirmar cada caixa, ou marque manualmente como concluído. O fechamento da carga será bloqueado enquanto houver pendências.
-          </p>
+        {pendingGroups.length > 0 && (
+          <div className="mt-4 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-2">
+            ⚠ Faltam bipar caixas para: <b>{pendingGroups.join(", ")}</b>. O fechamento da carga será bloqueado até completar.
+          </div>
         )}
       </Card>
+
+      {/* Dialog: total de caixas no primeiro bipe */}
+      <Dialog open={!!askTotal} onOpenChange={(o) => { if (!o) cancelTotal(); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Quantas caixas tem este volume?</DialogTitle>
+            <DialogDescription>
+              Volume <b className="font-mono">{askTotal?.base}</b>. Informe o total de caixas indicado na etiqueta (ex: 3).
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-2">
+            <Input
+              ref={totalInputRef}
+              autoFocus
+              type="number"
+              min={1}
+              value={totalStr}
+              onChange={(e) => setTotalStr(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") { e.preventDefault(); confirmTotal(); }
+                if (e.key === "Escape") { e.preventDefault(); cancelTotal(); }
+              }}
+              placeholder="Total de caixas"
+              className="h-12 text-lg"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={cancelTotal}>Cancelar</Button>
+            <Button onClick={confirmTotal}>Confirmar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
