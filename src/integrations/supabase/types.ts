@@ -187,20 +187,29 @@ export type Database = {
         Row: {
           barcode: string
           created_at: string
+          group_completed: boolean
           id: string
           load_id: string
+          scanned_count: number
+          total_boxes: number | null
         }
         Insert: {
           barcode: string
           created_at?: string
+          group_completed?: boolean
           id?: string
           load_id: string
+          scanned_count?: number
+          total_boxes?: number | null
         }
         Update: {
           barcode?: string
           created_at?: string
+          group_completed?: boolean
           id?: string
           load_id?: string
+          scanned_count?: number
+          total_boxes?: number | null
         }
         Relationships: [
           {
