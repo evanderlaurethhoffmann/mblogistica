@@ -1,5 +1,5 @@
 import { Link, Outlet } from "@tanstack/react-router";
-import { Package, Settings, ClipboardList, ScanBarcode, Users, LogOut, Cog } from "lucide-react";
+import { Package, Settings, ClipboardList, ScanBarcode, Users, LogOut, Cog, History } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { LoginPage } from "@/components/LoginPage";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ export function Layout() {
   const navItems = [
     { to: "/", label: "Coleta", icon: ScanBarcode, show: true },
     { to: "/cargas", label: "Cargas / Fechamento", icon: ClipboardList, show: true },
+    { to: "/historico", label: "Histórico", icon: History, show: true },
     { to: "/cadastros", label: "Cadastros", icon: Settings, show: isAdmin },
     { to: "/usuarios", label: "Usuários", icon: Users, show: isAdmin },
     { to: "/configuracoes", label: "Configurações", icon: Cog, show: isAdmin },
