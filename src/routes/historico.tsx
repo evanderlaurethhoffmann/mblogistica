@@ -234,6 +234,11 @@ function HistoricoPage() {
                     <td className="px-4 py-2">
                       <span className="font-semibold">{l.branches.number}</span>{" "}
                       <span className="text-muted-foreground">— {l.branches.name}</span>
+                      {l.status === "Finalizado Parcial" && (
+                        <span className="ml-2 inline-block text-[10px] font-bold px-1.5 py-0.5 rounded bg-yellow-200 text-yellow-900">
+                          PARCIAL −{l.partial_cut_count}
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-2">{l.drivers?.name ?? "—"}</td>
                     <td className="px-4 py-2">{l.checkers?.name ?? "—"}</td>
