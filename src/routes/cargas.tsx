@@ -190,6 +190,7 @@ function CargasPage() {
       driver: l.drivers?.name ?? "—",
       branch: `${l.branches.number} — ${l.branches.name}`,
       volumes: (vols ?? []).map((v) => v.barcode),
+      partialCutCount: (l as any).partial_cut_count ?? 0,
     });
   };
 
