@@ -66,7 +66,7 @@ function HistoricoPage() {
       let query = supabase
         .from("loads")
         .select("*, branches(*), checkers(*), drivers(*), volumes(count)")
-        .eq("status", "Finalizado")
+        .in("status", ["Finalizado", "Finalizado Parcial"])
         .order("closed_at", { ascending: false });
 
       if (startDate) query = query.gte("closed_at", new Date(startDate + "T00:00:00").toISOString());
