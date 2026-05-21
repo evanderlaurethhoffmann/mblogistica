@@ -33,6 +33,7 @@ function CargasPage() {
   const [deleting, setDeleting] = useState<any | null>(null);
   const [checkerId, setCheckerId] = useState("");
   const [driverId, setDriverId] = useState("");
+  const [incomplete, setIncomplete] = useState<{ base: string; count: number; total: number }[]>([]);
 
   const { data: loads = [] } = useQuery({
     queryKey: ["loads-all"],
