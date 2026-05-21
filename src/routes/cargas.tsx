@@ -58,7 +58,7 @@ function CargasPage() {
   });
 
   const confirmClose = useMutation({
-    mutationFn: async () => {
+    mutationFn: async ({ force }: { force: boolean }) => {
       if (!closing) throw new Error("Carga não encontrada.");
       if (!checkerId || !driverId) throw new Error("Selecione conferente e motorista.");
 
@@ -68,23 +68,41 @@ function CargasPage() {
       if (!vols?.length) throw new Error("Carga sem volumes — bipe ao menos um volume.");
 
       // Group by base barcode (strip " N/M" suffix) and check completeness
-      const groups = new Map<string, { total: number; count: number }>();
+      const groups = new Map<string, { total: number; count: number; ids: string[] }>();
       for (const v of vols as any[]) {
         const base = String(v.barcode).replace(/\s+\d+\/\d+\s*$/, "").trim();
         const total = v.total_boxes ?? 1;
-        const g = groups.get(base) ?? { total, count: 0 };
+        const g = groups.get(base) ?? { total, count: 0, ids: [] };
         g.total = total;
         g.count += 1;
+        g.ids.push(v.id);
         groups.set(base, g);
       }
-      const missing: string[] = [];
+      const missing: { base: string; count: number; total: number; ids: string[] }[] = [];
       for (const [base, g] of groups.entries()) {
-        if (g.count < g.total) missing.push(`${base} (${g.count}/${g.total})`);
+        if (g.count < g.total) missing.push({ base, count: g.count, total: g.total, ids: g.ids });
       }
-      if (missing.length > 0) {
-        throw new Error(
-          `Volumes incompletos no pátio: ${missing.join(", ")}. Bipe as caixas faltantes antes de fechar a carga.`,
-        );
+
+      if (missing.length > 0 && !force) {
+        // Surface warning to UI; do not throw
+        setIncomplete(missing.map(({ base, count, total }) => ({ base, count, total })));
+        return { needsConfirm: true } as const;
+      }
+
+      let cutCount = 0;
+      if (force && missing.length > 0) {
+        // Renumber scanned volumes to N/count and update total_boxes
+        for (const g of missing) {
+          cutCount += g.total - g.count;
+          for (let i = 0; i < g.ids.length; i++) {
+            const newBarcode = `${g.base} ${i + 1}/${g.count}`;
+            const { error } = await supabase
+              .from("volumes")
+              .update({ barcode: newBarcode, total_boxes: g.count, group_completed: true })
+              .eq("id", g.ids[i]);
+            if (error) throw error;
+          }
+        }
       }
 
       const checker = checkers.find((c: any) => c.id === checkerId);
@@ -94,18 +112,22 @@ function CargasPage() {
       const { error: uErr } = await supabase
         .from("loads")
         .update({
-          status: "Finalizado",
+          status: cutCount > 0 ? "Finalizado Parcial" : "Finalizado",
           closed_at: closedAt.toISOString(),
           checker_id: checkerId,
           driver_id: driverId,
+          partial_cut_count: cutCount,
         })
         .eq("id", closing.id);
       if (uErr) throw uErr;
 
-      const branchLabel = `${closing.branches.number} — ${closing.branches.name}`;
-      const volumeCodes = vols.map((v) => v.barcode);
+      // Re-fetch volumes to get the renumbered barcodes for printing
+      const { data: vols2 } = await supabase
+        .from("volumes").select("*").eq("load_id", closing.id).order("created_at");
 
-      // Send webhook (server-side, doesn't block UI on failure)
+      const branchLabel = `${closing.branches.number} — ${closing.branches.name}`;
+      const volumeCodes = (vols2 ?? vols).map((v: any) => v.barcode);
+
       callWebhook({
         data: {
           loadId: closing.id,
@@ -119,19 +141,27 @@ function CargasPage() {
         if (!res.ok && !res.skipped) toast.warning("Webhook não enviado (verifique configurações).");
       }).catch(() => {});
 
-      // Open print window
       printRomaneio({
         emittedAt: closedAt,
         checker: checker!.name,
         driver: driver!.name,
         branch: branchLabel,
         volumes: volumeCodes,
+        partialCutCount: cutCount,
       });
+
+      return { needsConfirm: false, cutCount } as const;
     },
-    onSuccess: () => {
-      toast.success("Carga finalizada e romaneio gerado.");
+    onSuccess: (res) => {
+      if (res?.needsConfirm) return; // wait for user to force
+      toast.success(
+        res?.cutCount && res.cutCount > 0
+          ? `Carga finalizada com corte de ${res.cutCount} caixa(s).`
+          : "Carga finalizada e romaneio gerado.",
+      );
       setClosing(null);
       setCheckerId(""); setDriverId("");
+      setIncomplete([]);
       qc.invalidateQueries({ queryKey: ["loads-all"] });
     },
     onError: (e: Error) => toast.error(e.message),
