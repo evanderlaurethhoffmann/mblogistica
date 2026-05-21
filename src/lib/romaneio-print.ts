@@ -4,6 +4,7 @@ export function printRomaneio(opts: {
   driver: string;
   branch: string;
   volumes: string[];
+  partialCutCount?: number;
 }) {
   const dateStr = opts.emittedAt.toLocaleString("pt-BR");
 
