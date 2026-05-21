@@ -194,7 +194,7 @@ function CargasPage() {
   };
 
   const open = loads.filter((l: any) => l.status === "Em aberto");
-  const closed = loads.filter((l: any) => l.status === "Finalizado");
+  const closed = loads.filter((l: any) => l.status === "Finalizado" || l.status === "Finalizado Parcial");
 
   return (
     <div className="space-y-8">
