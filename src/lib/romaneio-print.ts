@@ -120,6 +120,10 @@ export function printRomaneio(opts: {
     <span>Total de volumes carregados:</span>
     <span class="qty">${opts.volumes.length}</span>
   </div>
+  ${opts.partialCutCount && opts.partialCutCount > 0 ? `
+  <div class="moto-row" style="background:#fff3cd; color:#000; font-weight:900;">
+    ⚠ ROMANEIO FECHADO COM DIVERGÊNCIA / CORTE DE SALDO DE ${opts.partialCutCount} CAIXA${opts.partialCutCount > 1 ? "S" : ""}.
+  </div>` : ""}
 
   <div class="moto-row">
     MOTORISTA: ${escapeHtml(opts.driver)}
