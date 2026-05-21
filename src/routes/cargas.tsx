@@ -72,10 +72,11 @@ function CargasPage() {
       for (const v of vols as any[]) {
         const base = String(v.barcode).replace(/\s+\d+\/\d+\s*$/, "").trim();
         const total = v.total_boxes ?? 1;
-        const g = groups.get(base) ?? { total, count: 0, ids: [] };
+        const g: { total: number; count: number; ids: string[] } =
+          groups.get(base) ?? { total, count: 0, ids: [] };
         g.total = total;
         g.count += 1;
-        g.ids.push(v.id);
+        g.ids.push(String(v.id));
         groups.set(base, g);
       }
       const missing: { base: string; count: number; total: number; ids: string[] }[] = [];
