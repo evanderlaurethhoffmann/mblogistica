@@ -266,7 +266,7 @@ function CargasPage() {
       </section>
 
       {/* Close Dialog */}
-      <Dialog open={!!closing} onOpenChange={(o) => !o && setClosing(null)}>
+      <Dialog open={!!closing} onOpenChange={(o) => { if (!o) { setClosing(null); setIncomplete([]); } }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Fechar carga</DialogTitle>
