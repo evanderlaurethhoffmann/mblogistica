@@ -294,9 +294,39 @@ function CargasPage() {
               </Select>
             </div>
           </div>
+
+          {incomplete.length > 0 && (
+            <div className="rounded-md border-2 border-yellow-500 bg-yellow-50 dark:bg-yellow-950/30 p-3 space-y-2">
+              <div className="font-bold text-yellow-900 dark:text-yellow-200 text-sm">
+                ⚠ Atenção: Existem volumes incompletos nesta carga
+              </div>
+              <ul className="text-xs font-mono space-y-0.5 text-yellow-900 dark:text-yellow-200">
+                {incomplete.map((g) => (
+                  <li key={g.base}>• {g.base} — {g.count} de {g.total} caixas bipadas</li>
+                ))}
+              </ul>
+              <p className="text-xs text-yellow-800 dark:text-yellow-300">
+                Você pode bipar as caixas faltantes ou forçar o fechamento parcial cortando o saldo.
+                As caixas não bipadas continuarão disponíveis para o próximo romaneio desta filial.
+              </p>
+              <Button
+                variant="destructive"
+                size="sm"
+                className="w-full"
+                onClick={() => confirmClose.mutate({ force: true })}
+                disabled={confirmClose.isPending}
+              >
+                Forçar Fechamento Parcial (Cortar Saldo)
+              </Button>
+            </div>
+          )}
+
           <DialogFooter>
-            <Button variant="outline" onClick={() => setClosing(null)}>Cancelar</Button>
-            <Button onClick={() => confirmClose.mutate()} disabled={confirmClose.isPending || !checkerId || !driverId}>
+            <Button variant="outline" onClick={() => { setClosing(null); setIncomplete([]); }}>Cancelar</Button>
+            <Button
+              onClick={() => confirmClose.mutate({ force: false })}
+              disabled={confirmClose.isPending || !checkerId || !driverId}
+            >
               Confirmar fechamento
             </Button>
           </DialogFooter>
