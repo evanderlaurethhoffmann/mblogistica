@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UsuariosRouteImport } from './routes/usuarios'
+import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as CargasRouteImport } from './routes/cargas'
 import { Route as CadastrosRouteImport } from './routes/cadastros'
@@ -22,6 +23,11 @@ import { Route as CadastrosConferentesRouteImport } from './routes/cadastros.con
 const UsuariosRoute = UsuariosRouteImport.update({
   id: '/usuarios',
   path: '/usuarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistoricoRoute = HistoricoRouteImport.update({
+  id: '/historico',
+  path: '/historico',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/cadastros': typeof CadastrosRouteWithChildren
   '/cargas': typeof CargasRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/historico': typeof HistoricoRoute
   '/usuarios': typeof UsuariosRoute
   '/cadastros/conferentes': typeof CadastrosConferentesRoute
   '/cadastros/filiais': typeof CadastrosFiliaisRoute
@@ -80,6 +87,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cargas': typeof CargasRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/historico': typeof HistoricoRoute
   '/usuarios': typeof UsuariosRoute
   '/cadastros/conferentes': typeof CadastrosConferentesRoute
   '/cadastros/filiais': typeof CadastrosFiliaisRoute
@@ -92,6 +100,7 @@ export interface FileRoutesById {
   '/cadastros': typeof CadastrosRouteWithChildren
   '/cargas': typeof CargasRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/historico': typeof HistoricoRoute
   '/usuarios': typeof UsuariosRoute
   '/cadastros/conferentes': typeof CadastrosConferentesRoute
   '/cadastros/filiais': typeof CadastrosFiliaisRoute
@@ -105,6 +114,7 @@ export interface FileRouteTypes {
     | '/cadastros'
     | '/cargas'
     | '/configuracoes'
+    | '/historico'
     | '/usuarios'
     | '/cadastros/conferentes'
     | '/cadastros/filiais'
@@ -115,6 +125,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cargas'
     | '/configuracoes'
+    | '/historico'
     | '/usuarios'
     | '/cadastros/conferentes'
     | '/cadastros/filiais'
@@ -126,6 +137,7 @@ export interface FileRouteTypes {
     | '/cadastros'
     | '/cargas'
     | '/configuracoes'
+    | '/historico'
     | '/usuarios'
     | '/cadastros/conferentes'
     | '/cadastros/filiais'
@@ -138,6 +150,7 @@ export interface RootRouteChildren {
   CadastrosRoute: typeof CadastrosRouteWithChildren
   CargasRoute: typeof CargasRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
+  HistoricoRoute: typeof HistoricoRoute
   UsuariosRoute: typeof UsuariosRoute
 }
 
@@ -148,6 +161,13 @@ declare module '@tanstack/react-router' {
       path: '/usuarios'
       fullPath: '/usuarios'
       preLoaderRoute: typeof UsuariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/historico': {
+      id: '/historico'
+      path: '/historico'
+      fullPath: '/historico'
+      preLoaderRoute: typeof HistoricoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/configuracoes': {
@@ -232,6 +252,7 @@ const rootRouteChildren: RootRouteChildren = {
   CadastrosRoute: CadastrosRouteWithChildren,
   CargasRoute: CargasRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
+  HistoricoRoute: HistoricoRoute,
   UsuariosRoute: UsuariosRoute,
 }
 export const routeTree = rootRouteImport
