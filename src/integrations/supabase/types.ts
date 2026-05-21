@@ -97,6 +97,7 @@ export type Database = {
           created_at: string
           driver_id: string | null
           id: string
+          partial_cut_count: number
           status: string
         }
         Insert: {
@@ -106,6 +107,7 @@ export type Database = {
           created_at?: string
           driver_id?: string | null
           id?: string
+          partial_cut_count?: number
           status?: string
         }
         Update: {
@@ -115,6 +117,7 @@ export type Database = {
           created_at?: string
           driver_id?: string | null
           id?: string
+          partial_cut_count?: number
           status?: string
         }
         Relationships: [

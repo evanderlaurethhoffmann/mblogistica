@@ -66,7 +66,7 @@ function HistoricoPage() {
       let query = supabase
         .from("loads")
         .select("*, branches(*), checkers(*), drivers(*), volumes(count)")
-        .eq("status", "Finalizado")
+        .in("status", ["Finalizado", "Finalizado Parcial"])
         .order("closed_at", { ascending: false });
 
       if (startDate) query = query.gte("closed_at", new Date(startDate + "T00:00:00").toISOString());
@@ -108,6 +108,7 @@ function HistoricoPage() {
       driver: l.drivers?.name ?? "—",
       branch: `${l.branches.number} — ${l.branches.name}`,
       volumes: list.map((v: any) => v.barcode),
+      partialCutCount: l.partial_cut_count ?? 0,
     });
   };
 
@@ -233,6 +234,11 @@ function HistoricoPage() {
                     <td className="px-4 py-2">
                       <span className="font-semibold">{l.branches.number}</span>{" "}
                       <span className="text-muted-foreground">— {l.branches.name}</span>
+                      {l.status === "Finalizado Parcial" && (
+                        <span className="ml-2 inline-block text-[10px] font-bold px-1.5 py-0.5 rounded bg-yellow-200 text-yellow-900">
+                          PARCIAL −{l.partial_cut_count}
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-2">{l.drivers?.name ?? "—"}</td>
                     <td className="px-4 py-2">{l.checkers?.name ?? "—"}</td>
