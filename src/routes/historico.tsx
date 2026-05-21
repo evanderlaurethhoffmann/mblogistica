@@ -108,6 +108,7 @@ function HistoricoPage() {
       driver: l.drivers?.name ?? "—",
       branch: `${l.branches.number} — ${l.branches.name}`,
       volumes: list.map((v: any) => v.barcode),
+      partialCutCount: l.partial_cut_count ?? 0,
     });
   };
 
