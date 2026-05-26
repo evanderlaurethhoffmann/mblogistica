@@ -23,10 +23,12 @@ export function Layout() {
     { to: "/", label: "Coleta", icon: ScanBarcode, show: true },
     { to: "/cargas", label: "Cargas / Fechamento", icon: ClipboardList, show: true },
     { to: "/historico", label: "Histórico", icon: History, show: true },
+    { to: "/recebimento", label: "Recebimento", icon: Inbox, show: isAdmin },
     { to: "/cadastros", label: "Cadastros", icon: Settings, show: isAdmin },
     { to: "/usuarios", label: "Usuários", icon: Users, show: isAdmin },
     { to: "/configuracoes", label: "Configurações", icon: Cog, show: isAdmin },
   ];
+
 
   return (
     <div className="min-h-screen bg-background">
