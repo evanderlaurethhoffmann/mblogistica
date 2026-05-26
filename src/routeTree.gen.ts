@@ -12,8 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as UsuariosRouteImport } from './routes/usuarios'
 import { Route as RecebimentoRouteImport } from './routes/recebimento'
 import { Route as PortalRouteImport } from './routes/portal'
+import { Route as InternoRouteImport } from './routes/interno'
 import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
+import { Route as ColetaRouteImport } from './routes/coleta'
 import { Route as CargasRouteImport } from './routes/cargas'
 import { Route as CadastrosRouteImport } from './routes/cadastros'
 import { Route as IndexRouteImport } from './routes/index'
@@ -37,6 +39,11 @@ const PortalRoute = PortalRouteImport.update({
   path: '/portal',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InternoRoute = InternoRouteImport.update({
+  id: '/interno',
+  path: '/interno',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HistoricoRoute = HistoricoRouteImport.update({
   id: '/historico',
   path: '/historico',
@@ -45,6 +52,11 @@ const HistoricoRoute = HistoricoRouteImport.update({
 const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
   id: '/configuracoes',
   path: '/configuracoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ColetaRoute = ColetaRouteImport.update({
+  id: '/coleta',
+  path: '/coleta',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CargasRoute = CargasRouteImport.update({
@@ -87,8 +99,10 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cadastros': typeof CadastrosRouteWithChildren
   '/cargas': typeof CargasRoute
+  '/coleta': typeof ColetaRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/historico': typeof HistoricoRoute
+  '/interno': typeof InternoRoute
   '/portal': typeof PortalRoute
   '/recebimento': typeof RecebimentoRoute
   '/usuarios': typeof UsuariosRoute
@@ -100,8 +114,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cargas': typeof CargasRoute
+  '/coleta': typeof ColetaRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/historico': typeof HistoricoRoute
+  '/interno': typeof InternoRoute
   '/portal': typeof PortalRoute
   '/recebimento': typeof RecebimentoRoute
   '/usuarios': typeof UsuariosRoute
@@ -115,8 +131,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/cadastros': typeof CadastrosRouteWithChildren
   '/cargas': typeof CargasRoute
+  '/coleta': typeof ColetaRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/historico': typeof HistoricoRoute
+  '/interno': typeof InternoRoute
   '/portal': typeof PortalRoute
   '/recebimento': typeof RecebimentoRoute
   '/usuarios': typeof UsuariosRoute
@@ -131,8 +149,10 @@ export interface FileRouteTypes {
     | '/'
     | '/cadastros'
     | '/cargas'
+    | '/coleta'
     | '/configuracoes'
     | '/historico'
+    | '/interno'
     | '/portal'
     | '/recebimento'
     | '/usuarios'
@@ -144,8 +164,10 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/cargas'
+    | '/coleta'
     | '/configuracoes'
     | '/historico'
+    | '/interno'
     | '/portal'
     | '/recebimento'
     | '/usuarios'
@@ -158,8 +180,10 @@ export interface FileRouteTypes {
     | '/'
     | '/cadastros'
     | '/cargas'
+    | '/coleta'
     | '/configuracoes'
     | '/historico'
+    | '/interno'
     | '/portal'
     | '/recebimento'
     | '/usuarios'
@@ -173,8 +197,10 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CadastrosRoute: typeof CadastrosRouteWithChildren
   CargasRoute: typeof CargasRoute
+  ColetaRoute: typeof ColetaRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   HistoricoRoute: typeof HistoricoRoute
+  InternoRoute: typeof InternoRoute
   PortalRoute: typeof PortalRoute
   RecebimentoRoute: typeof RecebimentoRoute
   UsuariosRoute: typeof UsuariosRoute
@@ -203,6 +229,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PortalRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/interno': {
+      id: '/interno'
+      path: '/interno'
+      fullPath: '/interno'
+      preLoaderRoute: typeof InternoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/historico': {
       id: '/historico'
       path: '/historico'
@@ -215,6 +248,13 @@ declare module '@tanstack/react-router' {
       path: '/configuracoes'
       fullPath: '/configuracoes'
       preLoaderRoute: typeof ConfiguracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/coleta': {
+      id: '/coleta'
+      path: '/coleta'
+      fullPath: '/coleta'
+      preLoaderRoute: typeof ColetaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cargas': {
@@ -291,8 +331,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CadastrosRoute: CadastrosRouteWithChildren,
   CargasRoute: CargasRoute,
+  ColetaRoute: ColetaRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   HistoricoRoute: HistoricoRoute,
+  InternoRoute: InternoRoute,
   PortalRoute: PortalRoute,
   RecebimentoRoute: RecebimentoRoute,
   UsuariosRoute: UsuariosRoute,

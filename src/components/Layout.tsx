@@ -8,8 +8,8 @@ export function Layout() {
   const { user, loading, isAdmin, role, signOut } = useAuth();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  // Public routes (no auth required)
-  if (pathname.startsWith("/portal")) {
+  // Public routes (no auth / no internal chrome)
+  if (pathname === "/" || pathname.startsWith("/portal")) {
     return <Outlet />;
   }
 
@@ -20,7 +20,8 @@ export function Layout() {
   if (!user) return <LoginPage />;
 
   const navItems = [
-    { to: "/", label: "Coleta", icon: ScanBarcode, show: true },
+    { to: "/interno", label: "Menu", icon: Package, show: true },
+    { to: "/coleta", label: "Coleta", icon: ScanBarcode, show: true },
     { to: "/cargas", label: "Cargas / Fechamento", icon: ClipboardList, show: true },
     { to: "/historico", label: "Histórico", icon: History, show: true },
     { to: "/recebimento", label: "Recebimento", icon: Inbox, show: isAdmin },
