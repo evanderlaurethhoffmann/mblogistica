@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as UsuariosRouteImport } from './routes/usuarios'
 import { Route as RecebimentoRouteImport } from './routes/recebimento'
 import { Route as PortalRouteImport } from './routes/portal'
+import { Route as InternoRouteImport } from './routes/interno'
 import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as ColetaRouteImport } from './routes/coleta'
@@ -36,6 +37,11 @@ const RecebimentoRoute = RecebimentoRouteImport.update({
 const PortalRoute = PortalRouteImport.update({
   id: '/portal',
   path: '/portal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InternoRoute = InternoRouteImport.update({
+  id: '/interno',
+  path: '/interno',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HistoricoRoute = HistoricoRouteImport.update({
@@ -96,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/coleta': typeof ColetaRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/historico': typeof HistoricoRoute
+  '/interno': typeof InternoRoute
   '/portal': typeof PortalRoute
   '/recebimento': typeof RecebimentoRoute
   '/usuarios': typeof UsuariosRoute
@@ -110,6 +117,7 @@ export interface FileRoutesByTo {
   '/coleta': typeof ColetaRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/historico': typeof HistoricoRoute
+  '/interno': typeof InternoRoute
   '/portal': typeof PortalRoute
   '/recebimento': typeof RecebimentoRoute
   '/usuarios': typeof UsuariosRoute
@@ -126,6 +134,7 @@ export interface FileRoutesById {
   '/coleta': typeof ColetaRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/historico': typeof HistoricoRoute
+  '/interno': typeof InternoRoute
   '/portal': typeof PortalRoute
   '/recebimento': typeof RecebimentoRoute
   '/usuarios': typeof UsuariosRoute
@@ -143,6 +152,7 @@ export interface FileRouteTypes {
     | '/coleta'
     | '/configuracoes'
     | '/historico'
+    | '/interno'
     | '/portal'
     | '/recebimento'
     | '/usuarios'
@@ -157,6 +167,7 @@ export interface FileRouteTypes {
     | '/coleta'
     | '/configuracoes'
     | '/historico'
+    | '/interno'
     | '/portal'
     | '/recebimento'
     | '/usuarios'
@@ -172,6 +183,7 @@ export interface FileRouteTypes {
     | '/coleta'
     | '/configuracoes'
     | '/historico'
+    | '/interno'
     | '/portal'
     | '/recebimento'
     | '/usuarios'
@@ -188,6 +200,7 @@ export interface RootRouteChildren {
   ColetaRoute: typeof ColetaRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   HistoricoRoute: typeof HistoricoRoute
+  InternoRoute: typeof InternoRoute
   PortalRoute: typeof PortalRoute
   RecebimentoRoute: typeof RecebimentoRoute
   UsuariosRoute: typeof UsuariosRoute
@@ -214,6 +227,13 @@ declare module '@tanstack/react-router' {
       path: '/portal'
       fullPath: '/portal'
       preLoaderRoute: typeof PortalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/interno': {
+      id: '/interno'
+      path: '/interno'
+      fullPath: '/interno'
+      preLoaderRoute: typeof InternoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/historico': {
@@ -314,6 +334,7 @@ const rootRouteChildren: RootRouteChildren = {
   ColetaRoute: ColetaRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   HistoricoRoute: HistoricoRoute,
+  InternoRoute: InternoRoute,
   PortalRoute: PortalRoute,
   RecebimentoRoute: RecebimentoRoute,
   UsuariosRoute: UsuariosRoute,
