@@ -1,25 +1,34 @@
-import { Link, Outlet } from "@tanstack/react-router";
-import { Package, Settings, ClipboardList, ScanBarcode, Users, LogOut, Cog, History } from "lucide-react";
+import { Link, Outlet, useRouterState } from "@tanstack/react-router";
+import { Package, Settings, ClipboardList, ScanBarcode, Users, LogOut, Cog, History, Inbox } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { LoginPage } from "@/components/LoginPage";
 import { Button } from "@/components/ui/button";
 
 export function Layout() {
   const { user, loading, isAdmin, role, signOut } = useAuth();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  // Public routes (no auth required)
+  if (pathname.startsWith("/portal")) {
+    return <Outlet />;
+  }
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Carregando…</div>;
   }
+
   if (!user) return <LoginPage />;
 
   const navItems = [
     { to: "/", label: "Coleta", icon: ScanBarcode, show: true },
     { to: "/cargas", label: "Cargas / Fechamento", icon: ClipboardList, show: true },
     { to: "/historico", label: "Histórico", icon: History, show: true },
+    { to: "/recebimento", label: "Recebimento", icon: Inbox, show: isAdmin },
     { to: "/cadastros", label: "Cadastros", icon: Settings, show: isAdmin },
     { to: "/usuarios", label: "Usuários", icon: Users, show: isAdmin },
     { to: "/configuracoes", label: "Configurações", icon: Cog, show: isAdmin },
   ];
+
 
   return (
     <div className="min-h-screen bg-background">

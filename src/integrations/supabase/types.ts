@@ -32,6 +32,89 @@ export type Database = {
         }
         Relationships: []
       }
+      appointments: {
+        Row: {
+          cargo_type: string
+          created_at: string
+          driver_contact: string
+          estimated_minutes: number
+          id: string
+          nf_file_url: string | null
+          nf_volumes: number
+          refusal_reason: string | null
+          scheduled_date: string
+          scheduled_time: string
+          status: string
+          supplier_id: string
+          updated_at: string
+          vehicle_plate: string
+          vehicle_type: string
+        }
+        Insert: {
+          cargo_type: string
+          created_at?: string
+          driver_contact: string
+          estimated_minutes: number
+          id?: string
+          nf_file_url?: string | null
+          nf_volumes?: number
+          refusal_reason?: string | null
+          scheduled_date: string
+          scheduled_time: string
+          status?: string
+          supplier_id: string
+          updated_at?: string
+          vehicle_plate: string
+          vehicle_type: string
+        }
+        Update: {
+          cargo_type?: string
+          created_at?: string
+          driver_contact?: string
+          estimated_minutes?: number
+          id?: string
+          nf_file_url?: string | null
+          nf_volumes?: number
+          refusal_reason?: string | null
+          scheduled_date?: string
+          scheduled_time?: string
+          status?: string
+          supplier_id?: string
+          updated_at?: string
+          vehicle_plate?: string
+          vehicle_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blocked_dates: {
+        Row: {
+          blocked_date: string
+          created_at: string
+          id: string
+          reason: string | null
+        }
+        Insert: {
+          blocked_date: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+        }
+        Update: {
+          blocked_date?: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+        }
+        Relationships: []
+      }
       branches: {
         Row: {
           created_at: string
@@ -162,6 +245,36 @@ export type Database = {
           email?: string
           id?: string
           name?: string
+        }
+        Relationships: []
+      }
+      suppliers: {
+        Row: {
+          cnpj: string
+          created_at: string
+          email: string
+          id: string
+          nome_fantasia: string
+          razao_social: string
+          whatsapp: string
+        }
+        Insert: {
+          cnpj: string
+          created_at?: string
+          email: string
+          id?: string
+          nome_fantasia: string
+          razao_social: string
+          whatsapp: string
+        }
+        Update: {
+          cnpj?: string
+          created_at?: string
+          email?: string
+          id?: string
+          nome_fantasia?: string
+          razao_social?: string
+          whatsapp?: string
         }
         Relationships: []
       }
