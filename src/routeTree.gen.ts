@@ -14,6 +14,7 @@ import { Route as RecebimentoRouteImport } from './routes/recebimento'
 import { Route as PortalRouteImport } from './routes/portal'
 import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
+import { Route as ColetaRouteImport } from './routes/coleta'
 import { Route as CargasRouteImport } from './routes/cargas'
 import { Route as CadastrosRouteImport } from './routes/cadastros'
 import { Route as IndexRouteImport } from './routes/index'
@@ -45,6 +46,11 @@ const HistoricoRoute = HistoricoRouteImport.update({
 const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
   id: '/configuracoes',
   path: '/configuracoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ColetaRoute = ColetaRouteImport.update({
+  id: '/coleta',
+  path: '/coleta',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CargasRoute = CargasRouteImport.update({
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cadastros': typeof CadastrosRouteWithChildren
   '/cargas': typeof CargasRoute
+  '/coleta': typeof ColetaRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/historico': typeof HistoricoRoute
   '/portal': typeof PortalRoute
@@ -100,6 +107,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cargas': typeof CargasRoute
+  '/coleta': typeof ColetaRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/historico': typeof HistoricoRoute
   '/portal': typeof PortalRoute
@@ -115,6 +123,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/cadastros': typeof CadastrosRouteWithChildren
   '/cargas': typeof CargasRoute
+  '/coleta': typeof ColetaRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/historico': typeof HistoricoRoute
   '/portal': typeof PortalRoute
@@ -131,6 +140,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cadastros'
     | '/cargas'
+    | '/coleta'
     | '/configuracoes'
     | '/historico'
     | '/portal'
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/cargas'
+    | '/coleta'
     | '/configuracoes'
     | '/historico'
     | '/portal'
@@ -158,6 +169,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cadastros'
     | '/cargas'
+    | '/coleta'
     | '/configuracoes'
     | '/historico'
     | '/portal'
@@ -173,6 +185,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CadastrosRoute: typeof CadastrosRouteWithChildren
   CargasRoute: typeof CargasRoute
+  ColetaRoute: typeof ColetaRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   HistoricoRoute: typeof HistoricoRoute
   PortalRoute: typeof PortalRoute
@@ -215,6 +228,13 @@ declare module '@tanstack/react-router' {
       path: '/configuracoes'
       fullPath: '/configuracoes'
       preLoaderRoute: typeof ConfiguracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/coleta': {
+      id: '/coleta'
+      path: '/coleta'
+      fullPath: '/coleta'
+      preLoaderRoute: typeof ColetaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cargas': {
@@ -291,6 +311,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CadastrosRoute: CadastrosRouteWithChildren,
   CargasRoute: CargasRoute,
+  ColetaRoute: ColetaRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   HistoricoRoute: HistoricoRoute,
   PortalRoute: PortalRoute,
@@ -300,3 +321,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
