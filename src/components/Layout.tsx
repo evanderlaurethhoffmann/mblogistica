@@ -1,5 +1,5 @@
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { Package, Settings, ClipboardList, ScanBarcode, Users, LogOut, Cog, History, Inbox } from "lucide-react";
+import { Package, Settings, ClipboardList, ScanBarcode, Users, LogOut, Cog, History, Inbox, LayoutGrid, FileText } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { LoginPage } from "@/components/LoginPage";
 import { Button } from "@/components/ui/button";
@@ -21,10 +21,12 @@ export function Layout() {
 
   const navItems = [
     { to: "/interno", label: "Menu", icon: Package, show: true },
+    { to: "/recebimento", label: "Aprovações", icon: Inbox, show: true },
+    { to: "/docas", label: "Docas", icon: LayoutGrid, show: true },
+    { to: "/notas-fiscais", label: "Notas Fiscais", icon: FileText, show: true },
     { to: "/coleta", label: "Coleta", icon: ScanBarcode, show: true },
     { to: "/cargas", label: "Cargas / Fechamento", icon: ClipboardList, show: true },
     { to: "/historico", label: "Histórico", icon: History, show: true },
-    { to: "/recebimento", label: "Recebimento", icon: Inbox, show: isAdmin },
     { to: "/cadastros", label: "Cadastros", icon: Settings, show: isAdmin },
     { to: "/usuarios", label: "Usuários", icon: Users, show: isAdmin },
     { to: "/configuracoes", label: "Configurações", icon: Cog, show: isAdmin },
