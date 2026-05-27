@@ -12,8 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as UsuariosRouteImport } from './routes/usuarios'
 import { Route as RecebimentoRouteImport } from './routes/recebimento'
 import { Route as PortalRouteImport } from './routes/portal'
+import { Route as NotasFiscaisRouteImport } from './routes/notas-fiscais'
 import { Route as InternoRouteImport } from './routes/interno'
 import { Route as HistoricoRouteImport } from './routes/historico'
+import { Route as DocasRouteImport } from './routes/docas'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as ColetaRouteImport } from './routes/coleta'
 import { Route as CargasRouteImport } from './routes/cargas'
@@ -39,6 +41,11 @@ const PortalRoute = PortalRouteImport.update({
   path: '/portal',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NotasFiscaisRoute = NotasFiscaisRouteImport.update({
+  id: '/notas-fiscais',
+  path: '/notas-fiscais',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InternoRoute = InternoRouteImport.update({
   id: '/interno',
   path: '/interno',
@@ -47,6 +54,11 @@ const InternoRoute = InternoRouteImport.update({
 const HistoricoRoute = HistoricoRouteImport.update({
   id: '/historico',
   path: '/historico',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocasRoute = DocasRouteImport.update({
+  id: '/docas',
+  path: '/docas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
@@ -101,8 +113,10 @@ export interface FileRoutesByFullPath {
   '/cargas': typeof CargasRoute
   '/coleta': typeof ColetaRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/docas': typeof DocasRoute
   '/historico': typeof HistoricoRoute
   '/interno': typeof InternoRoute
+  '/notas-fiscais': typeof NotasFiscaisRoute
   '/portal': typeof PortalRoute
   '/recebimento': typeof RecebimentoRoute
   '/usuarios': typeof UsuariosRoute
@@ -116,8 +130,10 @@ export interface FileRoutesByTo {
   '/cargas': typeof CargasRoute
   '/coleta': typeof ColetaRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/docas': typeof DocasRoute
   '/historico': typeof HistoricoRoute
   '/interno': typeof InternoRoute
+  '/notas-fiscais': typeof NotasFiscaisRoute
   '/portal': typeof PortalRoute
   '/recebimento': typeof RecebimentoRoute
   '/usuarios': typeof UsuariosRoute
@@ -133,8 +149,10 @@ export interface FileRoutesById {
   '/cargas': typeof CargasRoute
   '/coleta': typeof ColetaRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/docas': typeof DocasRoute
   '/historico': typeof HistoricoRoute
   '/interno': typeof InternoRoute
+  '/notas-fiscais': typeof NotasFiscaisRoute
   '/portal': typeof PortalRoute
   '/recebimento': typeof RecebimentoRoute
   '/usuarios': typeof UsuariosRoute
@@ -151,8 +169,10 @@ export interface FileRouteTypes {
     | '/cargas'
     | '/coleta'
     | '/configuracoes'
+    | '/docas'
     | '/historico'
     | '/interno'
+    | '/notas-fiscais'
     | '/portal'
     | '/recebimento'
     | '/usuarios'
@@ -166,8 +186,10 @@ export interface FileRouteTypes {
     | '/cargas'
     | '/coleta'
     | '/configuracoes'
+    | '/docas'
     | '/historico'
     | '/interno'
+    | '/notas-fiscais'
     | '/portal'
     | '/recebimento'
     | '/usuarios'
@@ -182,8 +204,10 @@ export interface FileRouteTypes {
     | '/cargas'
     | '/coleta'
     | '/configuracoes'
+    | '/docas'
     | '/historico'
     | '/interno'
+    | '/notas-fiscais'
     | '/portal'
     | '/recebimento'
     | '/usuarios'
@@ -199,8 +223,10 @@ export interface RootRouteChildren {
   CargasRoute: typeof CargasRoute
   ColetaRoute: typeof ColetaRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
+  DocasRoute: typeof DocasRoute
   HistoricoRoute: typeof HistoricoRoute
   InternoRoute: typeof InternoRoute
+  NotasFiscaisRoute: typeof NotasFiscaisRoute
   PortalRoute: typeof PortalRoute
   RecebimentoRoute: typeof RecebimentoRoute
   UsuariosRoute: typeof UsuariosRoute
@@ -229,6 +255,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PortalRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/notas-fiscais': {
+      id: '/notas-fiscais'
+      path: '/notas-fiscais'
+      fullPath: '/notas-fiscais'
+      preLoaderRoute: typeof NotasFiscaisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/interno': {
       id: '/interno'
       path: '/interno'
@@ -241,6 +274,13 @@ declare module '@tanstack/react-router' {
       path: '/historico'
       fullPath: '/historico'
       preLoaderRoute: typeof HistoricoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docas': {
+      id: '/docas'
+      path: '/docas'
+      fullPath: '/docas'
+      preLoaderRoute: typeof DocasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/configuracoes': {
@@ -333,8 +373,10 @@ const rootRouteChildren: RootRouteChildren = {
   CargasRoute: CargasRoute,
   ColetaRoute: ColetaRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
+  DocasRoute: DocasRoute,
   HistoricoRoute: HistoricoRoute,
   InternoRoute: InternoRoute,
+  NotasFiscaisRoute: NotasFiscaisRoute,
   PortalRoute: PortalRoute,
   RecebimentoRoute: RecebimentoRoute,
   UsuariosRoute: UsuariosRoute,

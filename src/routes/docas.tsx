@@ -154,8 +154,8 @@ function DocasPage() {
               {docks.map((d: any) => (
                 <FragmentRow key={d.id} dock={d} hours={hours} cellMap={cellMap} isAdmin={isAdmin}
                   onOpenAppt={setOpenApptId}
-                  onBlock={(time, kind, reason) => addBlock.mutate({ dockId: d.id, time, kind, reason })}
-                  onRelease={(id) => removeBlock.mutate(id)} />
+                  onBlock={(time: string, kind: string, reason: string) => addBlock.mutate({ dockId: d.id, time, kind, reason })}
+                  onRelease={(id: string) => removeBlock.mutate(id)} />
               ))}
             </div>
             <div className="flex gap-4 mt-4 text-xs">
