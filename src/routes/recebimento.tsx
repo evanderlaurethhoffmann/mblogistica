@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -7,20 +7,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
-} from "@/components/ui/dialog";
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Inbox, Check, X, Download, Ban, CalendarX } from "lucide-react";
-import { AdminOnly } from "@/components/Layout";
+import { Inbox, Eye, Ban, CalendarX, Search } from "lucide-react";
+import { AppointmentDetailsDialog } from "@/components/AppointmentDetailsDialog";
+
+const sb = supabase as any;
 
 export const Route = createFileRoute("/recebimento")({
-  head: () => ({ meta: [{ title: "Gestão de Recebimento" }] }),
-  component: () => <AdminOnly><RecebimentoPage /></AdminOnly>,
+  head: () => ({ meta: [{ title: "Aprovações de Agendamento" }] }),
+  component: RecebimentoPage,
 });
 
 function ymd(d: Date) {
@@ -32,200 +33,161 @@ function RecebimentoPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2"><Inbox className="h-6 w-6" /> Gestão de Recebimento</h1>
-        <p className="text-sm text-muted-foreground">Aprove agendamentos enviados pelos fornecedores e gerencie dias bloqueados.</p>
+        <h1 className="text-2xl font-bold flex items-center gap-2"><Inbox className="h-6 w-6" /> Aprovações de Agendamento</h1>
+        <p className="text-sm text-muted-foreground">Gerencie solicitações enviadas pelos fornecedores.</p>
       </div>
 
-      <Tabs defaultValue="pendentes">
+      <Tabs defaultValue="lista">
         <TabsList>
-          <TabsTrigger value="pendentes">Pendentes</TabsTrigger>
-          <TabsTrigger value="historico">Histórico</TabsTrigger>
+          <TabsTrigger value="lista">Agendamentos</TabsTrigger>
           <TabsTrigger value="dias">Configuração de Dias</TabsTrigger>
         </TabsList>
-        <TabsContent value="pendentes"><ListaAgendamentos statusFilter="Pendente" /></TabsContent>
-        <TabsContent value="historico"><ListaAgendamentos statusFilter={null} /></TabsContent>
+        <TabsContent value="lista"><ListaAgendamentos /></TabsContent>
         <TabsContent value="dias"><DiasBloqueados /></TabsContent>
       </Tabs>
     </div>
   );
 }
 
-function ListaAgendamentos({ statusFilter }: { statusFilter: string | null }) {
-  const qc = useQueryClient();
-  const [open, setOpen] = useState<any | null>(null);
-  const [refusal, setRefusal] = useState("");
-  const [editMinutes, setEditMinutes] = useState(0);
-  const [showRefuse, setShowRefuse] = useState(false);
+function statusBadge(s: string) {
+  const map: Record<string, string> = {
+    Pendente: "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30",
+    Confirmado: "bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/30",
+    Recusado: "bg-destructive/15 text-destructive border-destructive/30",
+  };
+  return <Badge variant="outline" className={map[s] ?? ""}>{s}</Badge>;
+}
+
+function ListaAgendamentos() {
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState<string>("Todos");
+  const [dateFrom, setDateFrom] = useState<string>("");
+  const [dateTo, setDateTo] = useState<string>("");
+  const [openId, setOpenId] = useState<string | null>(null);
 
   const { data = [], isLoading } = useQuery({
-    queryKey: ["appointments", statusFilter],
+    queryKey: ["appointments", status, dateFrom, dateTo],
     queryFn: async () => {
-      let q = supabase.from("appointments").select("*, suppliers(nome_fantasia, razao_social, cnpj, whatsapp, email)").order("scheduled_date").order("scheduled_time");
-      if (statusFilter) q = q.eq("status", statusFilter);
+      let q = sb.from("appointments")
+        .select("*, suppliers(nome_fantasia, razao_social, cnpj)")
+        .order("scheduled_date", { ascending: false })
+        .order("scheduled_time", { ascending: false });
+      if (status !== "Todos") q = q.eq("status", status);
+      if (dateFrom) q = q.gte("scheduled_date", dateFrom);
+      if (dateTo) q = q.lte("scheduled_date", dateTo);
       const { data, error } = await q;
       if (error) throw error;
       return data ?? [];
     },
   });
 
-  const accept = useMutation({
-    mutationFn: async ({ id, minutes }: { id: string; minutes: number }) => {
-      const { error } = await supabase.from("appointments")
-        .update({ status: "Confirmado", estimated_minutes: minutes, refusal_reason: null })
-        .eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["appointments"] }); toast.success("Agendamento confirmado."); setOpen(null); },
-    onError: (e: Error) => toast.error(e.message),
-  });
-  const refuse = useMutation({
-    mutationFn: async ({ id, reason }: { id: string; reason: string }) => {
-      const { error } = await supabase.from("appointments")
-        .update({ status: "Recusado", refusal_reason: reason })
-        .eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["appointments"] }); toast.success("Agendamento recusado."); setOpen(null); setShowRefuse(false); setRefusal(""); },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  const downloadNf = async (path: string) => {
-    const { data, error } = await supabase.storage.from("nf-uploads").createSignedUrl(path, 60);
-    if (error || !data?.signedUrl) { toast.error("Falha ao gerar link."); return; }
-    window.open(data.signedUrl, "_blank");
-  };
-
-  const statusBadge = (s: string) => {
-    const map: Record<string, string> = {
-      Pendente: "bg-amber-500/15 text-amber-700 dark:text-amber-400",
-      Confirmado: "bg-green-500/15 text-green-700 dark:text-green-400",
-      Recusado: "bg-destructive/15 text-destructive",
-    };
-    return <Badge variant="outline" className={map[s] ?? ""}>{s}</Badge>;
-  };
+  const filtered = useMemo(() => {
+    if (!search.trim()) return data;
+    const s = search.trim().toLowerCase();
+    return data.filter((a: any) =>
+      (a.suppliers?.nome_fantasia ?? "").toLowerCase().includes(s) ||
+      (a.suppliers?.cnpj ?? "").toLowerCase().includes(s) ||
+      (a.protocol ?? "").toLowerCase().includes(s),
+    );
+  }, [data, search]);
 
   return (
-    <Card className="p-4">
-      {isLoading ? <p className="text-sm text-muted-foreground p-4">Carregando…</p> : data.length === 0 ? (
-        <p className="text-sm text-muted-foreground p-4 text-center">Nenhuma solicitação.</p>
-      ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Data / Hora</TableHead>
-              <TableHead>Fornecedor</TableHead>
-              <TableHead>Veículo</TableHead>
-              <TableHead>Volumes</TableHead>
-              <TableHead>Tempo (min)</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data.map((a: any) => (
-              <TableRow key={a.id} className="cursor-pointer" onClick={() => { setOpen(a); setEditMinutes(a.estimated_minutes); setShowRefuse(false); setRefusal(""); }}>
-                <TableCell>{a.scheduled_date.split("-").reverse().join("/")} {(a.scheduled_time as string).slice(0, 5)}</TableCell>
-                <TableCell>
-                  <div className="font-medium">{a.suppliers?.nome_fantasia ?? "—"}</div>
-                  <div className="text-xs text-muted-foreground">{a.suppliers?.cnpj}</div>
-                </TableCell>
-                <TableCell>{a.vehicle_type} · {a.vehicle_plate}</TableCell>
-                <TableCell>{a.nf_volumes}</TableCell>
-                <TableCell>{a.estimated_minutes}</TableCell>
-                <TableCell>{statusBadge(a.status)}</TableCell>
-                <TableCell><Button size="sm" variant="ghost">Abrir</Button></TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      )}
-
-      <Dialog open={!!open} onOpenChange={(v) => !v && setOpen(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Detalhes do Agendamento</DialogTitle>
-          </DialogHeader>
-          {open && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div><span className="text-muted-foreground">Fornecedor:</span> <strong>{open.suppliers?.nome_fantasia}</strong></div>
-                <div><span className="text-muted-foreground">CNPJ:</span> {open.suppliers?.cnpj}</div>
-                <div><span className="text-muted-foreground">Razão Social:</span> {open.suppliers?.razao_social}</div>
-                <div><span className="text-muted-foreground">E-mail:</span> {open.suppliers?.email}</div>
-                <div><span className="text-muted-foreground">WhatsApp:</span> {open.suppliers?.whatsapp}</div>
-                <div><span className="text-muted-foreground">Motorista:</span> {open.driver_contact}</div>
-                <div><span className="text-muted-foreground">Veículo:</span> {open.vehicle_type} · {open.vehicle_plate}</div>
-                <div><span className="text-muted-foreground">Carga:</span> {open.cargo_type}</div>
-                <div><span className="text-muted-foreground">Volumes:</span> {open.nf_volumes}</div>
-                <div><span className="text-muted-foreground">Data/Hora:</span> {open.scheduled_date.split("-").reverse().join("/")} {(open.scheduled_time as string).slice(0, 5)}</div>
-                <div><span className="text-muted-foreground">Status:</span> {statusBadge(open.status)}</div>
-              </div>
-
-              {open.nf_file_url && (
-                <Button size="sm" variant="outline" onClick={() => downloadNf(open.nf_file_url)} className="gap-1">
-                  <Download className="h-4 w-4" /> Baixar NF anexada
-                </Button>
-              )}
-
-              {open.status === "Recusado" && open.refusal_reason && (
-                <div className="p-3 border border-destructive/50 rounded-md bg-destructive/5 text-sm">
-                  <strong>Motivo da recusa:</strong> {open.refusal_reason}
-                </div>
-              )}
-
-              {open.status === "Pendente" && (
-                <>
-                  <div className="space-y-1">
-                    <Label>Tempo de descarga (min) — ajuste se necessário antes de aceitar</Label>
-                    <Input type="number" min={15} value={editMinutes} onChange={(e) => setEditMinutes(Number(e.target.value))} />
-                  </div>
-
-                  {showRefuse && (
-                    <div className="space-y-1">
-                      <Label>Motivo da recusa *</Label>
-                      <Textarea value={refusal} onChange={(e) => setRefusal(e.target.value)} rows={3} />
-                    </div>
-                  )}
-                </>
-              )}
+    <div className="space-y-4">
+      <Card className="p-4">
+        <div className="grid md:grid-cols-4 gap-3">
+          <div className="md:col-span-2 space-y-1">
+            <Label>Buscar</Label>
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Nome fantasia, CNPJ ou protocolo" className="pl-8" />
             </div>
-          )}
-          <DialogFooter className="gap-2">
-            {open?.status === "Pendente" && !showRefuse && (
-              <>
-                <Button variant="destructive" onClick={() => setShowRefuse(true)} className="gap-1"><X className="h-4 w-4" /> Recusar</Button>
-                <Button onClick={() => accept.mutate({ id: open.id, minutes: editMinutes })} className="gap-1" disabled={accept.isPending}>
-                  <Check className="h-4 w-4" /> Aceitar
-                </Button>
-              </>
-            )}
-            {open?.status === "Pendente" && showRefuse && (
-              <>
-                <Button variant="ghost" onClick={() => setShowRefuse(false)}>Cancelar</Button>
-                <Button variant="destructive" disabled={!refusal.trim() || refuse.isPending} onClick={() => refuse.mutate({ id: open.id, reason: refusal.trim() })} className="gap-1">
-                  <X className="h-4 w-4" /> Confirmar recusa
-                </Button>
-              </>
-            )}
-            {open?.status !== "Pendente" && (
-              <Button variant="outline" onClick={() => setOpen(null)}>Fechar</Button>
-            )}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </Card>
+          </div>
+          <div className="space-y-1">
+            <Label>Status</Label>
+            <Select value={status} onValueChange={setStatus}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {["Todos", "Pendente", "Confirmado", "Recusado"].map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-1">
+              <Label>De</Label>
+              <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
+            </div>
+            <div className="space-y-1">
+              <Label>Até</Label>
+              <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      <Card className="p-2">
+        {isLoading ? (
+          <p className="text-sm text-muted-foreground p-6 text-center">Carregando…</p>
+        ) : filtered.length === 0 ? (
+          <p className="text-sm text-muted-foreground p-6 text-center">Nenhum agendamento encontrado.</p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Data/Hora</TableHead>
+                <TableHead>Fornecedor</TableHead>
+                <TableHead>Carga / Veículo</TableHead>
+                <TableHead className="text-right">Volumes</TableHead>
+                <TableHead className="text-right">Duração</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="w-12"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filtered.map((a: any) => (
+                <TableRow key={a.id} className="cursor-pointer hover:bg-muted/40" onClick={() => setOpenId(a.id)}>
+                  <TableCell>
+                    <div className="font-medium">{(a.scheduled_date as string).split("-").reverse().join("/")}</div>
+                    <div className="text-xs text-muted-foreground">{(a.scheduled_time as string).slice(0, 5)}</div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="font-medium">{a.suppliers?.nome_fantasia ?? "—"}</div>
+                    <div className="text-xs text-muted-foreground">{a.suppliers?.cnpj}</div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      <Badge variant="secondary" className="text-xs">{a.cargo_type}</Badge>
+                      <Badge variant="outline" className="text-xs">{a.vehicle_type} · {a.vehicle_plate}</Badge>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right">{a.nf_volumes}</TableCell>
+                  <TableCell className="text-right">{a.estimated_minutes} min</TableCell>
+                  <TableCell>{statusBadge(a.status)}</TableCell>
+                  <TableCell>
+                    <Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); setOpenId(a.id); }}>
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </Card>
+
+      <AppointmentDetailsDialog appointmentId={openId} open={!!openId} onOpenChange={(v) => !v && setOpenId(null)} />
+    </div>
   );
 }
 
 function DiasBloqueados() {
   const qc = useQueryClient();
-  const today = (() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; })();
-  const maxDate = (() => { const d = new Date(today); d.setDate(d.getDate() + 15); return d; })();
+  const today = useMemo(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }, []);
+  const maxDate = useMemo(() => { const d = new Date(today); d.setDate(d.getDate() + 15); return d; }, [today]);
 
   const { data: blocked = [] } = useQuery({
     queryKey: ["blocked-dates"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("blocked_dates").select("*").order("blocked_date");
+      const { data, error } = await sb.from("blocked_dates").select("*").order("blocked_date");
       if (error) throw error;
       return data ?? [];
     },
@@ -237,7 +199,7 @@ function DiasBloqueados() {
   const block = useMutation({
     mutationFn: async () => {
       if (!selected) throw new Error("Selecione um dia.");
-      const { error } = await supabase.from("blocked_dates").insert({ blocked_date: ymd(selected), reason: reason || null });
+      const { error } = await sb.from("blocked_dates").insert({ blocked_date: ymd(selected), reason: reason || null });
       if (error) throw error;
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["blocked-dates"] }); setReason(""); setSelected(undefined); toast.success("Dia bloqueado."); },
@@ -245,7 +207,7 @@ function DiasBloqueados() {
   });
   const unblock = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("blocked_dates").delete().eq("id", id);
+      const { error } = await sb.from("blocked_dates").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["blocked-dates"] }); toast.success("Bloqueio removido."); },
