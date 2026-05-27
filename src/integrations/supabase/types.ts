@@ -35,13 +35,24 @@ export type Database = {
       appointments: {
         Row: {
           cargo_type: string
+          carrier_name: string | null
           created_at: string
+          disposition: string | null
+          dock_id: string | null
           driver_contact: string
+          driver_name: string | null
           estimated_minutes: number
           id: string
+          nf_access_key: string | null
           nf_file_url: string | null
+          nf_number: string | null
+          nf_status: string
           nf_volumes: number
+          observations: string | null
+          palette_count: number
+          protocol: string | null
           refusal_reason: string | null
+          refusal_reason_id: string | null
           scheduled_date: string
           scheduled_time: string
           status: string
@@ -52,13 +63,24 @@ export type Database = {
         }
         Insert: {
           cargo_type: string
+          carrier_name?: string | null
           created_at?: string
+          disposition?: string | null
+          dock_id?: string | null
           driver_contact: string
+          driver_name?: string | null
           estimated_minutes: number
           id?: string
+          nf_access_key?: string | null
           nf_file_url?: string | null
+          nf_number?: string | null
+          nf_status?: string
           nf_volumes?: number
+          observations?: string | null
+          palette_count?: number
+          protocol?: string | null
           refusal_reason?: string | null
+          refusal_reason_id?: string | null
           scheduled_date: string
           scheduled_time: string
           status?: string
@@ -69,13 +91,24 @@ export type Database = {
         }
         Update: {
           cargo_type?: string
+          carrier_name?: string | null
           created_at?: string
+          disposition?: string | null
+          dock_id?: string | null
           driver_contact?: string
+          driver_name?: string | null
           estimated_minutes?: number
           id?: string
+          nf_access_key?: string | null
           nf_file_url?: string | null
+          nf_number?: string | null
+          nf_status?: string
           nf_volumes?: number
+          observations?: string | null
+          palette_count?: number
+          protocol?: string | null
           refusal_reason?: string | null
+          refusal_reason_id?: string | null
           scheduled_date?: string
           scheduled_time?: string
           status?: string
@@ -117,18 +150,21 @@ export type Database = {
       }
       branches: {
         Row: {
+          cnpj: string | null
           created_at: string
           id: string
           name: string
           number: string
         }
         Insert: {
+          cnpj?: string | null
           created_at?: string
           id?: string
           name: string
           number: string
         }
         Update: {
+          cnpj?: string | null
           created_at?: string
           id?: string
           name?: string
@@ -154,6 +190,57 @@ export type Database = {
         }
         Relationships: []
       }
+      dock_blocks: {
+        Row: {
+          blocked_date: string
+          blocked_time: string
+          created_at: string
+          dock_id: string
+          id: string
+          kind: string
+          reason: string | null
+        }
+        Insert: {
+          blocked_date: string
+          blocked_time: string
+          created_at?: string
+          dock_id: string
+          id?: string
+          kind?: string
+          reason?: string | null
+        }
+        Update: {
+          blocked_date?: string
+          blocked_time?: string
+          created_at?: string
+          dock_id?: string
+          id?: string
+          kind?: string
+          reason?: string | null
+        }
+        Relationships: []
+      }
+      docks: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          status?: string
+        }
+        Relationships: []
+      }
       drivers: {
         Row: {
           created_at: string
@@ -169,6 +256,33 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+        }
+        Relationships: []
+      }
+      fixed_schedules: {
+        Row: {
+          created_at: string
+          dock_id: string
+          id: string
+          scheduled_time: string
+          supplier_id: string
+          weekday: number
+        }
+        Insert: {
+          created_at?: string
+          dock_id: string
+          id?: string
+          scheduled_time: string
+          supplier_id: string
+          weekday: number
+        }
+        Update: {
+          created_at?: string
+          dock_id?: string
+          id?: string
+          scheduled_time?: string
+          supplier_id?: string
+          weekday?: number
         }
         Relationships: []
       }
@@ -248,8 +362,30 @@ export type Database = {
         }
         Relationships: []
       }
+      refusal_reasons: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          label: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          label: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          label?: string
+        }
+        Relationships: []
+      }
       suppliers: {
         Row: {
+          active: boolean
           cnpj: string
           created_at: string
           email: string
@@ -259,6 +395,7 @@ export type Database = {
           whatsapp: string
         }
         Insert: {
+          active?: boolean
           cnpj: string
           created_at?: string
           email: string
@@ -268,6 +405,7 @@ export type Database = {
           whatsapp: string
         }
         Update: {
+          active?: boolean
           cnpj?: string
           created_at?: string
           email?: string
@@ -336,6 +474,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      work_hours: {
+        Row: {
+          enabled: boolean
+          end_time: string
+          id: string
+          start_time: string
+          updated_at: string
+          weekday: number
+        }
+        Insert: {
+          enabled?: boolean
+          end_time?: string
+          id?: string
+          start_time?: string
+          updated_at?: string
+          weekday: number
+        }
+        Update: {
+          enabled?: boolean
+          end_time?: string
+          id?: string
+          start_time?: string
+          updated_at?: string
+          weekday?: number
+        }
+        Relationships: []
       }
     }
     Views: {
