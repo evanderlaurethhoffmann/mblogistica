@@ -34,9 +34,9 @@ const mainModules = [
 function HubPage() {
   return (
     <div className="min-h-[80vh] flex flex-col items-center pt-4">
-      <div className="text-center mb-12">
-        <h1 className="text-5xl font-bold tracking-tight">YAN DASHBOARD</h1>
-        <p className="text-sm text-muted-foreground uppercase tracking-widest mt-2 font-semibold">
+      <div className="flex flex-col items-center mb-12">
+        <img src="/logo.png" alt="MB Logística by YAN" style={{ maxWidth: 260 }} className="w-full h-auto" />
+        <p className="text-sm text-muted-foreground uppercase tracking-widest mt-4 font-semibold">
           Centro de Distribuição · Hub Operacional
         </p>
       </div>

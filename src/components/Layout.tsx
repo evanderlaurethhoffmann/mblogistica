@@ -161,9 +161,12 @@ export function Layout() {
   return (
     <div className="min-h-screen flex bg-background">
       <aside className="w-64 shrink-0 border-r bg-card flex flex-col print:hidden">
+        <div className="px-4 py-3 border-b flex justify-center">
+          <img src="/logo.png" alt="MB Logística by YAN" style={{ maxWidth: 120 }} className="w-full h-auto" />
+        </div>
         <Link
           to="/interno"
-          className="flex items-center gap-2 px-4 py-3 border-b text-sm font-semibold hover:bg-accent transition-colors"
+          className="flex items-center gap-2 px-4 py-2 border-b text-sm font-semibold hover:bg-accent transition-colors"
         >
           <Home className="h-4 w-4" />
           Voltar ao Hub YAN
