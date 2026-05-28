@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as YmsRouteImport } from './routes/yms'
 import { Route as UsuariosRouteImport } from './routes/usuarios'
 import { Route as RecebimentoRouteImport } from './routes/recebimento'
 import { Route as PortalRouteImport } from './routes/portal'
@@ -26,6 +27,11 @@ import { Route as CadastrosMotoristasRouteImport } from './routes/cadastros.moto
 import { Route as CadastrosFiliaisRouteImport } from './routes/cadastros.filiais'
 import { Route as CadastrosConferentesRouteImport } from './routes/cadastros.conferentes'
 
+const YmsRoute = YmsRouteImport.update({
+  id: '/yms',
+  path: '/yms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UsuariosRoute = UsuariosRouteImport.update({
   id: '/usuarios',
   path: '/usuarios',
@@ -120,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/portal': typeof PortalRoute
   '/recebimento': typeof RecebimentoRoute
   '/usuarios': typeof UsuariosRoute
+  '/yms': typeof YmsRoute
   '/cadastros/conferentes': typeof CadastrosConferentesRoute
   '/cadastros/filiais': typeof CadastrosFiliaisRoute
   '/cadastros/motoristas': typeof CadastrosMotoristasRoute
@@ -137,6 +144,7 @@ export interface FileRoutesByTo {
   '/portal': typeof PortalRoute
   '/recebimento': typeof RecebimentoRoute
   '/usuarios': typeof UsuariosRoute
+  '/yms': typeof YmsRoute
   '/cadastros/conferentes': typeof CadastrosConferentesRoute
   '/cadastros/filiais': typeof CadastrosFiliaisRoute
   '/cadastros/motoristas': typeof CadastrosMotoristasRoute
@@ -156,6 +164,7 @@ export interface FileRoutesById {
   '/portal': typeof PortalRoute
   '/recebimento': typeof RecebimentoRoute
   '/usuarios': typeof UsuariosRoute
+  '/yms': typeof YmsRoute
   '/cadastros/conferentes': typeof CadastrosConferentesRoute
   '/cadastros/filiais': typeof CadastrosFiliaisRoute
   '/cadastros/motoristas': typeof CadastrosMotoristasRoute
@@ -176,6 +185,7 @@ export interface FileRouteTypes {
     | '/portal'
     | '/recebimento'
     | '/usuarios'
+    | '/yms'
     | '/cadastros/conferentes'
     | '/cadastros/filiais'
     | '/cadastros/motoristas'
@@ -193,6 +203,7 @@ export interface FileRouteTypes {
     | '/portal'
     | '/recebimento'
     | '/usuarios'
+    | '/yms'
     | '/cadastros/conferentes'
     | '/cadastros/filiais'
     | '/cadastros/motoristas'
@@ -211,6 +222,7 @@ export interface FileRouteTypes {
     | '/portal'
     | '/recebimento'
     | '/usuarios'
+    | '/yms'
     | '/cadastros/conferentes'
     | '/cadastros/filiais'
     | '/cadastros/motoristas'
@@ -230,10 +242,18 @@ export interface RootRouteChildren {
   PortalRoute: typeof PortalRoute
   RecebimentoRoute: typeof RecebimentoRoute
   UsuariosRoute: typeof UsuariosRoute
+  YmsRoute: typeof YmsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/yms': {
+      id: '/yms'
+      path: '/yms'
+      fullPath: '/yms'
+      preLoaderRoute: typeof YmsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/usuarios': {
       id: '/usuarios'
       path: '/usuarios'
@@ -380,6 +400,7 @@ const rootRouteChildren: RootRouteChildren = {
   PortalRoute: PortalRoute,
   RecebimentoRoute: RecebimentoRoute,
   UsuariosRoute: UsuariosRoute,
+  YmsRoute: YmsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
