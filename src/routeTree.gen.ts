@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as YmsRouteImport } from './routes/yms'
+import { Route as WmsRouteImport } from './routes/wms'
 import { Route as UsuariosRouteImport } from './routes/usuarios'
 import { Route as TmsRouteImport } from './routes/tms'
 import { Route as RecebimentoRouteImport } from './routes/recebimento'
@@ -31,6 +32,11 @@ import { Route as CadastrosConferentesRouteImport } from './routes/cadastros.con
 const YmsRoute = YmsRouteImport.update({
   id: '/yms',
   path: '/yms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WmsRoute = WmsRouteImport.update({
+  id: '/wms',
+  path: '/wms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UsuariosRoute = UsuariosRouteImport.update({
@@ -133,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/recebimento': typeof RecebimentoRoute
   '/tms': typeof TmsRoute
   '/usuarios': typeof UsuariosRoute
+  '/wms': typeof WmsRoute
   '/yms': typeof YmsRoute
   '/cadastros/conferentes': typeof CadastrosConferentesRoute
   '/cadastros/filiais': typeof CadastrosFiliaisRoute
@@ -152,6 +159,7 @@ export interface FileRoutesByTo {
   '/recebimento': typeof RecebimentoRoute
   '/tms': typeof TmsRoute
   '/usuarios': typeof UsuariosRoute
+  '/wms': typeof WmsRoute
   '/yms': typeof YmsRoute
   '/cadastros/conferentes': typeof CadastrosConferentesRoute
   '/cadastros/filiais': typeof CadastrosFiliaisRoute
@@ -173,6 +181,7 @@ export interface FileRoutesById {
   '/recebimento': typeof RecebimentoRoute
   '/tms': typeof TmsRoute
   '/usuarios': typeof UsuariosRoute
+  '/wms': typeof WmsRoute
   '/yms': typeof YmsRoute
   '/cadastros/conferentes': typeof CadastrosConferentesRoute
   '/cadastros/filiais': typeof CadastrosFiliaisRoute
@@ -195,6 +204,7 @@ export interface FileRouteTypes {
     | '/recebimento'
     | '/tms'
     | '/usuarios'
+    | '/wms'
     | '/yms'
     | '/cadastros/conferentes'
     | '/cadastros/filiais'
@@ -214,6 +224,7 @@ export interface FileRouteTypes {
     | '/recebimento'
     | '/tms'
     | '/usuarios'
+    | '/wms'
     | '/yms'
     | '/cadastros/conferentes'
     | '/cadastros/filiais'
@@ -234,6 +245,7 @@ export interface FileRouteTypes {
     | '/recebimento'
     | '/tms'
     | '/usuarios'
+    | '/wms'
     | '/yms'
     | '/cadastros/conferentes'
     | '/cadastros/filiais'
@@ -255,6 +267,7 @@ export interface RootRouteChildren {
   RecebimentoRoute: typeof RecebimentoRoute
   TmsRoute: typeof TmsRoute
   UsuariosRoute: typeof UsuariosRoute
+  WmsRoute: typeof WmsRoute
   YmsRoute: typeof YmsRoute
 }
 
@@ -265,6 +278,13 @@ declare module '@tanstack/react-router' {
       path: '/yms'
       fullPath: '/yms'
       preLoaderRoute: typeof YmsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/wms': {
+      id: '/wms'
+      path: '/wms'
+      fullPath: '/wms'
+      preLoaderRoute: typeof WmsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/usuarios': {
@@ -421,6 +441,7 @@ const rootRouteChildren: RootRouteChildren = {
   RecebimentoRoute: RecebimentoRoute,
   TmsRoute: TmsRoute,
   UsuariosRoute: UsuariosRoute,
+  WmsRoute: WmsRoute,
   YmsRoute: YmsRoute,
 }
 export const routeTree = rootRouteImport
