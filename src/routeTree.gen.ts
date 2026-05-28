@@ -23,6 +23,7 @@ import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as ColetaRouteImport } from './routes/coleta'
 import { Route as CargasRouteImport } from './routes/cargas'
 import { Route as CadastrosRouteImport } from './routes/cadastros'
+import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CadastrosIndexRouteImport } from './routes/cadastros.index'
 import { Route as CadastrosMotoristasRouteImport } from './routes/cadastros.motoristas'
@@ -99,6 +100,11 @@ const CadastrosRoute = CadastrosRouteImport.update({
   path: '/cadastros',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnalyticsRoute = AnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -127,6 +133,7 @@ const CadastrosConferentesRoute = CadastrosConferentesRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
   '/cadastros': typeof CadastrosRouteWithChildren
   '/cargas': typeof CargasRoute
   '/coleta': typeof ColetaRoute
@@ -148,6 +155,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
   '/cargas': typeof CargasRoute
   '/coleta': typeof ColetaRoute
   '/configuracoes': typeof ConfiguracoesRoute
@@ -169,6 +177,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
   '/cadastros': typeof CadastrosRouteWithChildren
   '/cargas': typeof CargasRoute
   '/coleta': typeof ColetaRoute
@@ -192,6 +201,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/analytics'
     | '/cadastros'
     | '/cargas'
     | '/coleta'
@@ -213,6 +223,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/analytics'
     | '/cargas'
     | '/coleta'
     | '/configuracoes'
@@ -233,6 +244,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/analytics'
     | '/cadastros'
     | '/cargas'
     | '/coleta'
@@ -255,6 +267,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AnalyticsRoute: typeof AnalyticsRoute
   CadastrosRoute: typeof CadastrosRouteWithChildren
   CargasRoute: typeof CargasRoute
   ColetaRoute: typeof ColetaRoute
@@ -371,6 +384,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CadastrosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/analytics': {
+      id: '/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -429,6 +449,7 @@ const CadastrosRouteWithChildren = CadastrosRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnalyticsRoute: AnalyticsRoute,
   CadastrosRoute: CadastrosRouteWithChildren,
   CargasRoute: CargasRoute,
   ColetaRoute: ColetaRoute,
