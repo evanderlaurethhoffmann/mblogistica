@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as YmsRouteImport } from './routes/yms'
 import { Route as UsuariosRouteImport } from './routes/usuarios'
+import { Route as TmsRouteImport } from './routes/tms'
 import { Route as RecebimentoRouteImport } from './routes/recebimento'
 import { Route as PortalRouteImport } from './routes/portal'
 import { Route as NotasFiscaisRouteImport } from './routes/notas-fiscais'
@@ -35,6 +36,11 @@ const YmsRoute = YmsRouteImport.update({
 const UsuariosRoute = UsuariosRouteImport.update({
   id: '/usuarios',
   path: '/usuarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TmsRoute = TmsRouteImport.update({
+  id: '/tms',
+  path: '/tms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RecebimentoRoute = RecebimentoRouteImport.update({
@@ -125,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/notas-fiscais': typeof NotasFiscaisRoute
   '/portal': typeof PortalRoute
   '/recebimento': typeof RecebimentoRoute
+  '/tms': typeof TmsRoute
   '/usuarios': typeof UsuariosRoute
   '/yms': typeof YmsRoute
   '/cadastros/conferentes': typeof CadastrosConferentesRoute
@@ -143,6 +150,7 @@ export interface FileRoutesByTo {
   '/notas-fiscais': typeof NotasFiscaisRoute
   '/portal': typeof PortalRoute
   '/recebimento': typeof RecebimentoRoute
+  '/tms': typeof TmsRoute
   '/usuarios': typeof UsuariosRoute
   '/yms': typeof YmsRoute
   '/cadastros/conferentes': typeof CadastrosConferentesRoute
@@ -163,6 +171,7 @@ export interface FileRoutesById {
   '/notas-fiscais': typeof NotasFiscaisRoute
   '/portal': typeof PortalRoute
   '/recebimento': typeof RecebimentoRoute
+  '/tms': typeof TmsRoute
   '/usuarios': typeof UsuariosRoute
   '/yms': typeof YmsRoute
   '/cadastros/conferentes': typeof CadastrosConferentesRoute
@@ -184,6 +193,7 @@ export interface FileRouteTypes {
     | '/notas-fiscais'
     | '/portal'
     | '/recebimento'
+    | '/tms'
     | '/usuarios'
     | '/yms'
     | '/cadastros/conferentes'
@@ -202,6 +212,7 @@ export interface FileRouteTypes {
     | '/notas-fiscais'
     | '/portal'
     | '/recebimento'
+    | '/tms'
     | '/usuarios'
     | '/yms'
     | '/cadastros/conferentes'
@@ -221,6 +232,7 @@ export interface FileRouteTypes {
     | '/notas-fiscais'
     | '/portal'
     | '/recebimento'
+    | '/tms'
     | '/usuarios'
     | '/yms'
     | '/cadastros/conferentes'
@@ -241,6 +253,7 @@ export interface RootRouteChildren {
   NotasFiscaisRoute: typeof NotasFiscaisRoute
   PortalRoute: typeof PortalRoute
   RecebimentoRoute: typeof RecebimentoRoute
+  TmsRoute: typeof TmsRoute
   UsuariosRoute: typeof UsuariosRoute
   YmsRoute: typeof YmsRoute
 }
@@ -259,6 +272,13 @@ declare module '@tanstack/react-router' {
       path: '/usuarios'
       fullPath: '/usuarios'
       preLoaderRoute: typeof UsuariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tms': {
+      id: '/tms'
+      path: '/tms'
+      fullPath: '/tms'
+      preLoaderRoute: typeof TmsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/recebimento': {
@@ -399,6 +419,7 @@ const rootRouteChildren: RootRouteChildren = {
   NotasFiscaisRoute: NotasFiscaisRoute,
   PortalRoute: PortalRoute,
   RecebimentoRoute: RecebimentoRoute,
+  TmsRoute: TmsRoute,
   UsuariosRoute: UsuariosRoute,
   YmsRoute: YmsRoute,
 }
