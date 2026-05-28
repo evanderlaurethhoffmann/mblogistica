@@ -9,7 +9,10 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as YmsRouteImport } from './routes/yms'
+import { Route as WmsRouteImport } from './routes/wms'
 import { Route as UsuariosRouteImport } from './routes/usuarios'
+import { Route as TmsRouteImport } from './routes/tms'
 import { Route as RecebimentoRouteImport } from './routes/recebimento'
 import { Route as PortalRouteImport } from './routes/portal'
 import { Route as NotasFiscaisRouteImport } from './routes/notas-fiscais'
@@ -20,15 +23,31 @@ import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as ColetaRouteImport } from './routes/coleta'
 import { Route as CargasRouteImport } from './routes/cargas'
 import { Route as CadastrosRouteImport } from './routes/cadastros'
+import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CadastrosIndexRouteImport } from './routes/cadastros.index'
 import { Route as CadastrosMotoristasRouteImport } from './routes/cadastros.motoristas'
 import { Route as CadastrosFiliaisRouteImport } from './routes/cadastros.filiais'
 import { Route as CadastrosConferentesRouteImport } from './routes/cadastros.conferentes'
 
+const YmsRoute = YmsRouteImport.update({
+  id: '/yms',
+  path: '/yms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WmsRoute = WmsRouteImport.update({
+  id: '/wms',
+  path: '/wms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UsuariosRoute = UsuariosRouteImport.update({
   id: '/usuarios',
   path: '/usuarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TmsRoute = TmsRouteImport.update({
+  id: '/tms',
+  path: '/tms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RecebimentoRoute = RecebimentoRouteImport.update({
@@ -81,6 +100,11 @@ const CadastrosRoute = CadastrosRouteImport.update({
   path: '/cadastros',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnalyticsRoute = AnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -109,6 +133,7 @@ const CadastrosConferentesRoute = CadastrosConferentesRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
   '/cadastros': typeof CadastrosRouteWithChildren
   '/cargas': typeof CargasRoute
   '/coleta': typeof ColetaRoute
@@ -119,7 +144,10 @@ export interface FileRoutesByFullPath {
   '/notas-fiscais': typeof NotasFiscaisRoute
   '/portal': typeof PortalRoute
   '/recebimento': typeof RecebimentoRoute
+  '/tms': typeof TmsRoute
   '/usuarios': typeof UsuariosRoute
+  '/wms': typeof WmsRoute
+  '/yms': typeof YmsRoute
   '/cadastros/conferentes': typeof CadastrosConferentesRoute
   '/cadastros/filiais': typeof CadastrosFiliaisRoute
   '/cadastros/motoristas': typeof CadastrosMotoristasRoute
@@ -127,6 +155,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
   '/cargas': typeof CargasRoute
   '/coleta': typeof ColetaRoute
   '/configuracoes': typeof ConfiguracoesRoute
@@ -136,7 +165,10 @@ export interface FileRoutesByTo {
   '/notas-fiscais': typeof NotasFiscaisRoute
   '/portal': typeof PortalRoute
   '/recebimento': typeof RecebimentoRoute
+  '/tms': typeof TmsRoute
   '/usuarios': typeof UsuariosRoute
+  '/wms': typeof WmsRoute
+  '/yms': typeof YmsRoute
   '/cadastros/conferentes': typeof CadastrosConferentesRoute
   '/cadastros/filiais': typeof CadastrosFiliaisRoute
   '/cadastros/motoristas': typeof CadastrosMotoristasRoute
@@ -145,6 +177,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
   '/cadastros': typeof CadastrosRouteWithChildren
   '/cargas': typeof CargasRoute
   '/coleta': typeof ColetaRoute
@@ -155,7 +188,10 @@ export interface FileRoutesById {
   '/notas-fiscais': typeof NotasFiscaisRoute
   '/portal': typeof PortalRoute
   '/recebimento': typeof RecebimentoRoute
+  '/tms': typeof TmsRoute
   '/usuarios': typeof UsuariosRoute
+  '/wms': typeof WmsRoute
+  '/yms': typeof YmsRoute
   '/cadastros/conferentes': typeof CadastrosConferentesRoute
   '/cadastros/filiais': typeof CadastrosFiliaisRoute
   '/cadastros/motoristas': typeof CadastrosMotoristasRoute
@@ -165,6 +201,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/analytics'
     | '/cadastros'
     | '/cargas'
     | '/coleta'
@@ -175,7 +212,10 @@ export interface FileRouteTypes {
     | '/notas-fiscais'
     | '/portal'
     | '/recebimento'
+    | '/tms'
     | '/usuarios'
+    | '/wms'
+    | '/yms'
     | '/cadastros/conferentes'
     | '/cadastros/filiais'
     | '/cadastros/motoristas'
@@ -183,6 +223,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/analytics'
     | '/cargas'
     | '/coleta'
     | '/configuracoes'
@@ -192,7 +233,10 @@ export interface FileRouteTypes {
     | '/notas-fiscais'
     | '/portal'
     | '/recebimento'
+    | '/tms'
     | '/usuarios'
+    | '/wms'
+    | '/yms'
     | '/cadastros/conferentes'
     | '/cadastros/filiais'
     | '/cadastros/motoristas'
@@ -200,6 +244,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/analytics'
     | '/cadastros'
     | '/cargas'
     | '/coleta'
@@ -210,7 +255,10 @@ export interface FileRouteTypes {
     | '/notas-fiscais'
     | '/portal'
     | '/recebimento'
+    | '/tms'
     | '/usuarios'
+    | '/wms'
+    | '/yms'
     | '/cadastros/conferentes'
     | '/cadastros/filiais'
     | '/cadastros/motoristas'
@@ -219,6 +267,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AnalyticsRoute: typeof AnalyticsRoute
   CadastrosRoute: typeof CadastrosRouteWithChildren
   CargasRoute: typeof CargasRoute
   ColetaRoute: typeof ColetaRoute
@@ -229,16 +278,40 @@ export interface RootRouteChildren {
   NotasFiscaisRoute: typeof NotasFiscaisRoute
   PortalRoute: typeof PortalRoute
   RecebimentoRoute: typeof RecebimentoRoute
+  TmsRoute: typeof TmsRoute
   UsuariosRoute: typeof UsuariosRoute
+  WmsRoute: typeof WmsRoute
+  YmsRoute: typeof YmsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/yms': {
+      id: '/yms'
+      path: '/yms'
+      fullPath: '/yms'
+      preLoaderRoute: typeof YmsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/wms': {
+      id: '/wms'
+      path: '/wms'
+      fullPath: '/wms'
+      preLoaderRoute: typeof WmsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/usuarios': {
       id: '/usuarios'
       path: '/usuarios'
       fullPath: '/usuarios'
       preLoaderRoute: typeof UsuariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tms': {
+      id: '/tms'
+      path: '/tms'
+      fullPath: '/tms'
+      preLoaderRoute: typeof TmsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/recebimento': {
@@ -311,6 +384,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CadastrosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/analytics': {
+      id: '/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -369,6 +449,7 @@ const CadastrosRouteWithChildren = CadastrosRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnalyticsRoute: AnalyticsRoute,
   CadastrosRoute: CadastrosRouteWithChildren,
   CargasRoute: CargasRoute,
   ColetaRoute: ColetaRoute,
@@ -379,7 +460,10 @@ const rootRouteChildren: RootRouteChildren = {
   NotasFiscaisRoute: NotasFiscaisRoute,
   PortalRoute: PortalRoute,
   RecebimentoRoute: RecebimentoRoute,
+  TmsRoute: TmsRoute,
   UsuariosRoute: UsuariosRoute,
+  WmsRoute: WmsRoute,
+  YmsRoute: YmsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
