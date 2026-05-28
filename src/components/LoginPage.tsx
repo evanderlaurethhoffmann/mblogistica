@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { Package } from "lucide-react";
 import { toast } from "sonner";
 
 export function LoginPage() {
@@ -23,9 +22,9 @@ export function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <Card className="w-full max-w-sm p-8">
-        <div className="flex items-center gap-2 mb-6 justify-center">
-          <Package className="h-7 w-7 text-primary" />
-          <span className="font-bold text-xl">Sistema de Romaneio</span>
+        <div className="flex flex-col items-center gap-3 mb-6">
+          <img src="/logo.png" alt="MB Logística by YAN" style={{ maxWidth: 180 }} className="w-full h-auto" />
+          <span className="font-bold text-lg text-center">Acesso Interno · Sistema de Romaneio</span>
         </div>
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-2">

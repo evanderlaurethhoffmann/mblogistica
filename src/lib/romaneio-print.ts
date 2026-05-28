@@ -83,7 +83,7 @@ export function printRomaneio(opts: {
 <div class="sheet">
 
   <div class="header-row">
-    <div class="brand-text">MB Farmácias</div>
+    <img src="/logo.png" alt="MB Logística by YAN" style="max-width:110px; height:auto;" />
     <div class="doc-title">ROMANEIO DE ENTREGAS</div>
   </div>
 
