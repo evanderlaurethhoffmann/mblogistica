@@ -26,6 +26,8 @@ import { Route as CadastrosRouteImport } from './routes/cadastros'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CadastrosIndexRouteImport } from './routes/cadastros.index'
+import { Route as PortalPainelRouteImport } from './routes/portal.painel'
+import { Route as PortalLoginRouteImport } from './routes/portal.login'
 import { Route as CadastrosMotoristasRouteImport } from './routes/cadastros.motoristas'
 import { Route as CadastrosFiliaisRouteImport } from './routes/cadastros.filiais'
 import { Route as CadastrosConferentesRouteImport } from './routes/cadastros.conferentes'
@@ -115,6 +117,16 @@ const CadastrosIndexRoute = CadastrosIndexRouteImport.update({
   path: '/',
   getParentRoute: () => CadastrosRoute,
 } as any)
+const PortalPainelRoute = PortalPainelRouteImport.update({
+  id: '/painel',
+  path: '/painel',
+  getParentRoute: () => PortalRoute,
+} as any)
+const PortalLoginRoute = PortalLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => PortalRoute,
+} as any)
 const CadastrosMotoristasRoute = CadastrosMotoristasRouteImport.update({
   id: '/motoristas',
   path: '/motoristas',
@@ -142,7 +154,7 @@ export interface FileRoutesByFullPath {
   '/historico': typeof HistoricoRoute
   '/interno': typeof InternoRoute
   '/notas-fiscais': typeof NotasFiscaisRoute
-  '/portal': typeof PortalRoute
+  '/portal': typeof PortalRouteWithChildren
   '/recebimento': typeof RecebimentoRoute
   '/tms': typeof TmsRoute
   '/usuarios': typeof UsuariosRoute
@@ -151,6 +163,8 @@ export interface FileRoutesByFullPath {
   '/cadastros/conferentes': typeof CadastrosConferentesRoute
   '/cadastros/filiais': typeof CadastrosFiliaisRoute
   '/cadastros/motoristas': typeof CadastrosMotoristasRoute
+  '/portal/login': typeof PortalLoginRoute
+  '/portal/painel': typeof PortalPainelRoute
   '/cadastros/': typeof CadastrosIndexRoute
 }
 export interface FileRoutesByTo {
@@ -163,7 +177,7 @@ export interface FileRoutesByTo {
   '/historico': typeof HistoricoRoute
   '/interno': typeof InternoRoute
   '/notas-fiscais': typeof NotasFiscaisRoute
-  '/portal': typeof PortalRoute
+  '/portal': typeof PortalRouteWithChildren
   '/recebimento': typeof RecebimentoRoute
   '/tms': typeof TmsRoute
   '/usuarios': typeof UsuariosRoute
@@ -172,6 +186,8 @@ export interface FileRoutesByTo {
   '/cadastros/conferentes': typeof CadastrosConferentesRoute
   '/cadastros/filiais': typeof CadastrosFiliaisRoute
   '/cadastros/motoristas': typeof CadastrosMotoristasRoute
+  '/portal/login': typeof PortalLoginRoute
+  '/portal/painel': typeof PortalPainelRoute
   '/cadastros': typeof CadastrosIndexRoute
 }
 export interface FileRoutesById {
@@ -186,7 +202,7 @@ export interface FileRoutesById {
   '/historico': typeof HistoricoRoute
   '/interno': typeof InternoRoute
   '/notas-fiscais': typeof NotasFiscaisRoute
-  '/portal': typeof PortalRoute
+  '/portal': typeof PortalRouteWithChildren
   '/recebimento': typeof RecebimentoRoute
   '/tms': typeof TmsRoute
   '/usuarios': typeof UsuariosRoute
@@ -195,6 +211,8 @@ export interface FileRoutesById {
   '/cadastros/conferentes': typeof CadastrosConferentesRoute
   '/cadastros/filiais': typeof CadastrosFiliaisRoute
   '/cadastros/motoristas': typeof CadastrosMotoristasRoute
+  '/portal/login': typeof PortalLoginRoute
+  '/portal/painel': typeof PortalPainelRoute
   '/cadastros/': typeof CadastrosIndexRoute
 }
 export interface FileRouteTypes {
@@ -219,6 +237,8 @@ export interface FileRouteTypes {
     | '/cadastros/conferentes'
     | '/cadastros/filiais'
     | '/cadastros/motoristas'
+    | '/portal/login'
+    | '/portal/painel'
     | '/cadastros/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -240,6 +260,8 @@ export interface FileRouteTypes {
     | '/cadastros/conferentes'
     | '/cadastros/filiais'
     | '/cadastros/motoristas'
+    | '/portal/login'
+    | '/portal/painel'
     | '/cadastros'
   id:
     | '__root__'
@@ -262,6 +284,8 @@ export interface FileRouteTypes {
     | '/cadastros/conferentes'
     | '/cadastros/filiais'
     | '/cadastros/motoristas'
+    | '/portal/login'
+    | '/portal/painel'
     | '/cadastros/'
   fileRoutesById: FileRoutesById
 }
@@ -276,7 +300,7 @@ export interface RootRouteChildren {
   HistoricoRoute: typeof HistoricoRoute
   InternoRoute: typeof InternoRoute
   NotasFiscaisRoute: typeof NotasFiscaisRoute
-  PortalRoute: typeof PortalRoute
+  PortalRoute: typeof PortalRouteWithChildren
   RecebimentoRoute: typeof RecebimentoRoute
   TmsRoute: typeof TmsRoute
   UsuariosRoute: typeof UsuariosRoute
@@ -405,6 +429,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CadastrosIndexRouteImport
       parentRoute: typeof CadastrosRoute
     }
+    '/portal/painel': {
+      id: '/portal/painel'
+      path: '/painel'
+      fullPath: '/portal/painel'
+      preLoaderRoute: typeof PortalPainelRouteImport
+      parentRoute: typeof PortalRoute
+    }
+    '/portal/login': {
+      id: '/portal/login'
+      path: '/login'
+      fullPath: '/portal/login'
+      preLoaderRoute: typeof PortalLoginRouteImport
+      parentRoute: typeof PortalRoute
+    }
     '/cadastros/motoristas': {
       id: '/cadastros/motoristas'
       path: '/motoristas'
@@ -447,6 +485,19 @@ const CadastrosRouteWithChildren = CadastrosRoute._addFileChildren(
   CadastrosRouteChildren,
 )
 
+interface PortalRouteChildren {
+  PortalLoginRoute: typeof PortalLoginRoute
+  PortalPainelRoute: typeof PortalPainelRoute
+}
+
+const PortalRouteChildren: PortalRouteChildren = {
+  PortalLoginRoute: PortalLoginRoute,
+  PortalPainelRoute: PortalPainelRoute,
+}
+
+const PortalRouteWithChildren =
+  PortalRoute._addFileChildren(PortalRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnalyticsRoute: AnalyticsRoute,
@@ -458,7 +509,7 @@ const rootRouteChildren: RootRouteChildren = {
   HistoricoRoute: HistoricoRoute,
   InternoRoute: InternoRoute,
   NotasFiscaisRoute: NotasFiscaisRoute,
-  PortalRoute: PortalRoute,
+  PortalRoute: PortalRouteWithChildren,
   RecebimentoRoute: RecebimentoRoute,
   TmsRoute: TmsRoute,
   UsuariosRoute: UsuariosRoute,
@@ -468,13 +519,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

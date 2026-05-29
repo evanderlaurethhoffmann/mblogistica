@@ -383,6 +383,54 @@ export type Database = {
         }
         Relationships: []
       }
+      supplier_accounts: {
+        Row: {
+          cnpj: string
+          created_at: string
+          id: string
+          password_hash: string
+          supplier_id: string
+          updated_at: string
+        }
+        Insert: {
+          cnpj: string
+          created_at?: string
+          id?: string
+          password_hash: string
+          supplier_id: string
+          updated_at?: string
+        }
+        Update: {
+          cnpj?: string
+          created_at?: string
+          id?: string
+          password_hash?: string
+          supplier_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      supplier_sessions: {
+        Row: {
+          created_at: string
+          expires_at: string
+          supplier_id: string
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          supplier_id: string
+          token: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          supplier_id?: string
+          token?: string
+        }
+        Relationships: []
+      }
       suppliers: {
         Row: {
           active: boolean
@@ -507,12 +555,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      crypt_password: {
+        Args: { p: string }
+        Returns: {
+          hash: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      verify_supplier_password: {
+        Args: { h: string; p: string }
+        Returns: {
+          ok: boolean
+        }[]
       }
     }
     Enums: {
