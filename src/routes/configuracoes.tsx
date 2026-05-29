@@ -39,6 +39,7 @@ function ConfigPage() {
         <TabsList className="flex-wrap h-auto">
           <TabsTrigger value="empresas">Empresas</TabsTrigger>
           <TabsTrigger value="usuarios">Usuários</TabsTrigger>
+          <TabsTrigger value="senhas">Senhas Fornecedores</TabsTrigger>
           <TabsTrigger value="filiais">Filiais</TabsTrigger>
           <TabsTrigger value="horarios">Horários</TabsTrigger>
           <TabsTrigger value="motivos">Motivos de Recusa</TabsTrigger>
@@ -49,6 +50,7 @@ function ConfigPage() {
 
         <TabsContent value="empresas"><Empresas /></TabsContent>
         <TabsContent value="usuarios"><Usuarios /></TabsContent>
+        <TabsContent value="senhas"><SenhasFornecedores /></TabsContent>
         <TabsContent value="filiais"><Filiais /></TabsContent>
         <TabsContent value="horarios"><Horarios /></TabsContent>
         <TabsContent value="motivos"><Motivos /></TabsContent>
@@ -57,6 +59,73 @@ function ConfigPage() {
         <TabsContent value="integracoes"><Integracoes /></TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+/* ================== SENHAS FORNECEDORES ================== */
+function SenhasFornecedores() {
+  const listFn = useServerFn(listSuppliersWithAccountStatus);
+  const resetFn = useServerFn(adminResetSupplierPassword);
+  const qc = useQueryClient();
+  const [target, setTarget] = useState<{ id: string; name: string } | null>(null);
+  const [newPwd, setNewPwd] = useState("");
+
+  const { data } = useQuery({
+    queryKey: ["supplier-accounts-list"],
+    queryFn: async () => (await listFn({ data: undefined as any })).suppliers as any[],
+  });
+
+  const reset = useMutation({
+    mutationFn: async () => {
+      if (!target) return;
+      if (newPwd.length < 6) throw new Error("Senha deve ter no mínimo 6 caracteres.");
+      await resetFn({ data: { supplier_id: target.id, newPassword: newPwd } });
+    },
+    onSuccess: () => {
+      toast.success("Senha redefinida. Sessões anteriores foram encerradas.");
+      setTarget(null); setNewPwd("");
+      qc.invalidateQueries({ queryKey: ["supplier-accounts-list"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Card className="p-2">
+      <Table>
+        <TableHeader><TableRow><TableHead>Fornecedor</TableHead><TableHead>CNPJ</TableHead><TableHead>E-mail</TableHead><TableHead>Conta</TableHead><TableHead></TableHead></TableRow></TableHeader>
+        <TableBody>
+          {(data ?? []).map((s) => (
+            <TableRow key={s.id}>
+              <TableCell className="font-medium">{s.nome_fantasia}</TableCell>
+              <TableCell className="font-mono text-xs">{s.cnpj}</TableCell>
+              <TableCell className="text-xs">{s.email}</TableCell>
+              <TableCell>
+                <Badge variant={s.has_account ? "default" : "outline"}>{s.has_account ? "Ativa" : "Sem senha"}</Badge>
+              </TableCell>
+              <TableCell>
+                <Button size="sm" variant="outline" className="gap-1" onClick={() => setTarget({ id: s.id, name: s.nome_fantasia })}>
+                  <KeyRound className="h-4 w-4" /> {s.has_account ? "Redefinir senha" : "Definir senha"}
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
+      <Dialog open={!!target} onOpenChange={(o) => { if (!o) { setTarget(null); setNewPwd(""); } }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Redefinir senha — {target?.name}</DialogTitle></DialogHeader>
+          <div className="space-y-2">
+            <Label>Nova senha (mín. 6 caracteres)</Label>
+            <Input type="password" value={newPwd} onChange={(e) => setNewPwd(e.target.value)} />
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setTarget(null)}>Cancelar</Button>
+            <Button onClick={() => reset.mutate()} disabled={reset.isPending}>Salvar nova senha</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </Card>
   );
 }
 
