@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,10 +13,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Cog, Plus, Trash2, ExternalLink } from "lucide-react";
+import { Cog, Plus, Trash2, ExternalLink, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { AdminOnly } from "@/components/Layout";
+import { adminResetSupplierPassword, listSuppliersWithAccountStatus } from "@/lib/supplier-auth.functions";
 
 const sb = supabase as any;
 
