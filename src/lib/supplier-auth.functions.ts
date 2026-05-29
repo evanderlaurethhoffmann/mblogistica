@@ -86,26 +86,9 @@ export const registerSupplier = createServerFn({ method: "POST" })
       supplier_id = created.id;
     }
 
-    // hash via pgcrypto
     const { data: hashRow, error: hashErr } = await sb().rpc("crypt_password", { p: data.password }).single();
-    let password_hash: string;
-    if (hashErr) {
-      // fallback: use SQL via direct query
-      const { data: r } = await sb().from("supplier_accounts").select("id").limit(0);
-      void r;
-      const { data: h } = await sb()
-        .rpc("hash_supplier_password" as any, { p: data.password } as any).maybeSingle?.() ?? { data: null };
-      if (!h) {
-        // last resort: pgcrypto via PostgREST not exposed; use raw select
-        const { data: raw, error: rawErr } = await (sb() as any)
-          .from("supplier_accounts").select("crypt").limit(1);
-        void raw; void rawErr;
-        throw new Error("Não foi possível gerar hash da senha. Contate o suporte.");
-      }
-      password_hash = (h as any).hash as string;
-    } else {
-      password_hash = (hashRow as any).hash as string;
-    }
+    if (hashErr) throw new Error("Falha ao gerar hash da senha.");
+    const password_hash = (hashRow as any).hash as string;
 
     const { error: acctErr } = await sb().from("supplier_accounts").insert({
       supplier_id, cnpj, password_hash,
