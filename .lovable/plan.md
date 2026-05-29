@@ -1,125 +1,93 @@
-## Visão geral
 
-Expansão grande do Portal Interno com 5 frentes integradas. Toda implementação reaproveita as tabelas existentes (`appointments`, `suppliers`, `blocked_dates`, `branches`, `profiles`, `user_roles`) e adiciona novas tabelas para docas, configurações operacionais e agendas fixas.
+## Escopo
 
-Acesso: tudo restrito a **Administrador** e **Conferente** (operator). Hoje só existe `admin | operator` — vou usar `operator` como "Conferente".
-
----
-
-## 1. Migração de banco (uma só migration)
-
-**Novos campos em `appointments`:**
-- `protocol` (text, único, gerado por trigger `AG-YYYYMMDD-XXXX`)
-- `dock_id` (uuid → docks, nullable)
-- `nf_number` (text), `nf_access_key` (text), `nf_status` (text default 'Pendente')
-- `palette_count` (int), `disposition` (text — Batida/Paletizada/Outro)
-- `driver_name` (text), `carrier_name` (text — transportadora)
-- `observations` (text)
-- `refusal_reason_id` (uuid → refusal_reasons, nullable)
-
-**Novas tabelas (todas com GRANT + RLS):**
-- `docks` (name, status 'Ativa'|'Manutenção') — admin escreve, auth lê.
-- `work_hours` (weekday 0-6 unique, enabled, start_time, end_time) — admin escreve, **leitura pública** (alimenta calendário do portal externo).
-- `refusal_reasons` (label, active) — admin escreve, auth lê.
-- `fixed_schedules` (supplier_id, dock_id, weekday, time) — admin escreve, **leitura pública** (para bloquear no portal externo).
-- `dock_blocks` (dock_id, blocked_date, blocked_time, reason, kind 'block'|'reserve', manual_supplier_label) — admin escreve, auth lê.
-- Estender `suppliers`: `active` boolean default true.
-- Estender `branches`: `cnpj` text nullable.
-
-**Função/trigger:** `gen_protocol()` para preencher `protocol` no insert.
+Reorganizar o Portal do Fornecedor para exigir login/cadastro próprio antes de agendar, criar painel exclusivo com histórico de solicitações, e padronizar a logo YAN nos cabeçalhos.
 
 ---
 
-## 2. Tela: `/recebimento` — Aprovações (reformulada)
+## 1. Banco de dados (migration)
 
-Mantém as 3 abas, mas a aba **Pendentes/Histórico** ganha:
-- Barra de filtros: busca (nome fantasia/CNPJ), select de status (Todos/Pendente/Confirmado/Recusado), data inicial e data final.
-- Tabela com colunas: Data/Hora · Fornecedor (nome+CNPJ) · Tipo Carga + Veículo (Badges) · Volumes · Duração · Status (badge colorido) · Ações (ícone olho).
-- Linha inteira clicável → abre modal de detalhes (ver §3).
+Criar tabela `supplier_accounts` separada do `auth.users` do Supabase (fornecedores não são usuários internos):
 
----
+```
+supplier_accounts
+  id uuid pk
+  supplier_id uuid -> suppliers.id (1:1)
+  cnpj text unique (digits only)
+  password_hash text  -- bcrypt via pgcrypto
+  created_at, updated_at
+```
 
-## 3. Modal: Detalhes do Agendamento (2 colunas)
+- Habilitar `pgcrypto` se necessário (`crypt`, `gen_salt`).
+- RLS: bloquear acesso direto via anon (`USING (false)`). Toda autenticação será feita via **server functions** (`createServerFn`) que usam `supabaseAdmin` para validar `crypt(senha, password_hash) = password_hash`.
+- Admin pode resetar senha via outra server function (já que ele está autenticado no Supabase Auth e tem role `admin`).
 
-Componente reutilizável `AppointmentDetailsDialog` usado em Aprovações, Painel de Docas e Conferência de NFs.
+## 2. Server functions (`src/lib/supplier-auth.functions.ts`)
 
-**Coluna esquerda (3 blocos):**
-- Dados da Solicitação: Protocolo, Solicitada Em, Solicitada Para, Tipo de Carga, CNPJ, Razão Social/Nome Fantasia, E-mail, WhatsApp, Observações.
-- Dados da Carga: Disposição, Volumes, Paletes, Tipo Veículo, Placa, Motorista, Contato, Transportadora.
-- Alocação de Doca: Agendado Para, Horário, **seletor de Doca** (alimentado por `docks` ativas).
+- `registerSupplier({ cnpj, nome_fantasia, razao_social, whatsapp, email, password })` — cria `suppliers` + `supplier_accounts` (com `crypt(password, gen_salt('bf'))`). Retorna `{ supplier_id, token }`.
+- `loginSupplier({ cnpj, password })` — valida senha, retorna `{ supplier_id, nome_fantasia, token }`. Token = JWT simples assinado com `SUPABASE_SERVICE_ROLE_KEY` ou apenas um ID assinado (HMAC). Para simplicidade: gera token aleatório armazenado em `supplier_sessions` (id, supplier_id, token, expires_at).
+- `getSupplierFromToken(token)` — helper interno.
+- `getSupplierAppointments({ token })` — lista appointments do fornecedor logado (com `refusal_reason`).
+- `createSupplierAppointment({ token, ...dadosCarga, scheduled_date, scheduled_time, estimated_minutes })` — cria o agendamento usando `supabaseAdmin`.
+- `adminResetSupplierPassword({ supplier_id, newPassword })` — protegido por `requireSupabaseAuth` + checagem admin.
 
-**Coluna direita:**
-- Notas Fiscais e Anexos: Nº NF, botão para baixar XML/PDF anexado (`nf-uploads`).
+Tabela auxiliar:
+```
+supplier_sessions
+  token text pk
+  supplier_id uuid
+  expires_at timestamptz
+```
 
-**Rodapé fixo:**
-- **Aprovar** (exige doca selecionada — valida conflito de doca/horário) → status Confirmado.
-- **Alterar Tempo** (abre input inline do `estimated_minutes`).
-- **Recusar** → seleciona motivo do dropdown (`refusal_reasons`) + textarea de complemento obrigatório → status Recusado.
+## 3. Frontend — fluxo de portal
 
----
+Reorganizar rotas:
+- `/portal` — landing/hub do fornecedor com botão "Solicitar Agendamento" → redireciona para `/portal/login`.
+- `/portal/login` (nova) — tabs Login (CNPJ + Senha) e Cadastro (CNPJ, Nome Fantasia, Razão Social, WhatsApp, E-mail, Senha).
+- `/portal/painel` (nova) — painel do fornecedor logado:
+  - Botão destacado "Nova Solicitação de Agenda" → abre dialog/wizard com calendário (15 dias), horários, e dados da carga.
+  - Tabela de histórico (Protocolo, Data/Hora, Volumes, Placa, Status como badge colorido). Ícone de info no status Recusado mostra `refusal_reason` em tooltip.
+  - Botão sair.
 
-## 4. Tela: `/docas` — Painel de Ocupação de Docas
+Sessão do fornecedor: armazenar `supplier_token` em `localStorage` (chave `yan_supplier_token`). Hook `useSupplierAuth()` que valida ao montar.
 
-- Header: date picker (default hoje) + setas anterior/próximo.
-- Grid: linhas = docas ativas, colunas = horas (lidas de `work_hours` do dia da semana selecionado).
-- Cada célula:
-  - **Ocupada** (appointment Confirmado com dock_id+data+hora): bloco azul com nome fantasia → clique abre `AppointmentDetailsDialog`.
-  - **Bloqueada/Reservada** (`dock_blocks`): cinza listrado com label → clique abre popover "Desbloquear".
-  - **Livre**: clique abre popover com botões "Bloquear Horário" e "Reservar Internamente" (input motivo).
+O wizard de agendamento será reaproveitado da `portal.tsx` atual (steps 2 e 3 — Carga + Calendário) extraído para componente `SupplierAppointmentDialog`.
 
----
+## 4. Logo nos cabeçalhos
 
-## 5. Tela: `/notas-fiscais` — Conferência de Notas Fiscais
+Substituir títulos textuais "SISTEMA INTEGRADO DE LOGÍSTICA — CD" por `<img src="/logo.png" />` (max-width 200px, centralizado) em:
+- `/portal` (landing externa)
+- `/portal/login`
+- `/portal/painel`
 
-- Filtros: busca (nf_number/nf_access_key), select status NF, período (data prevista).
-- Tabela: Nº NF · Fornecedor · Data prevista · Volumes · Arquivo (badge XML/PDF clicável → URL assinada) · Status agendamento.
-- Linha clicável → `AppointmentDetailsDialog`.
+Layout interno (`Layout.tsx`) já mostra a logo na sidebar — manter.
 
----
+## 5. Configurações internas
 
-## 6. Tela: `/configuracoes` — Cadastros (admin-only, em abas)
-
-Reaproveita a rota existente `/configuracoes` ou cria nova `/configuracoes-recebimento`. Vou **estender** a atual com Tabs:
-1. **Empresas (Fornecedores)** — CRUD de `suppliers` (com Status Ativo/Inativo).
-2. **Usuários** — usa fluxo existente em `/usuarios` (link interno).
-3. **Filiais** — CRUD de `branches` (Número, Nome, CNPJ).
-4. **Horários de Trabalho** — grade Seg–Dom com checkbox + inputs start/end.
-5. **Motivos de Recusa** — CRUD simples de `refusal_reasons`.
-6. **Docas** — CRUD de `docks` (Nome, Status).
-7. **Agendas Fixas** — CRUD de `fixed_schedules` (fornecedor, doca, dia da semana, horário).
-
----
-
-## 7. Integração com o portal externo (`/portal`)
-
-O calendário do fornecedor passa a:
-- Ler `work_hours` para gerar slots por dia da semana (em vez do hard-code 08–17h).
-- Bloquear horários presentes em `fixed_schedules` e `dock_blocks` do dia escolhido.
-
----
-
-## 8. Navegação (Layout.tsx)
-
-Adicionar itens no menu lateral (admin + operator): **Recebimento**, **Docas**, **Notas Fiscais**. **Configurações** continua admin-only.
+Em `/configuracoes`, adicionar aba "Senhas Fornecedores":
+- Lista fornecedores cadastrados, botão "Resetar senha" abre dialog com nova senha → chama `adminResetSupplierPassword`.
 
 ---
 
 ## Detalhes técnicos
 
-- Tudo em `createServerFn` quando precisar de joins/validação cruzada (ex.: aprovar com checagem de conflito de doca). CRUDs simples continuam pelo client supabase + RLS.
-- Reuso do `CrudList` quando der; telas com lógica específica recebem componente próprio.
-- Tipagem: como `src/integrations/supabase/types.ts` é auto-gerada, vou referenciar campos novos via `as any` temporário até a migração rodar (padrão atual do projeto).
+- **Hash de senha**: `crypt()` do pgcrypto (mais simples que bcrypt JS no Worker).
+- **Tokens**: gerados via `crypto.randomUUID()` no server, persistidos em `supplier_sessions`, expiram em 30 dias.
+- **Validação**: Zod em todas as server functions; CNPJ normalizado a 14 dígitos.
+- **RLS** em `supplier_accounts` e `supplier_sessions`: `USING (false)` para anon/authenticated; acesso só via `supabaseAdmin` em server functions.
+- **`appointments`**: continua igual; server function popula `supplier_id`.
+- **Logo**: já existe `/public/logo.png`.
 
----
+## Arquivos afetados
 
-## Ordem de execução
+- Migration SQL (nova)
+- `src/lib/supplier-auth.functions.ts` (novo)
+- `src/hooks/use-supplier-auth.tsx` (novo)
+- `src/components/SupplierAppointmentDialog.tsx` (novo, extraído de portal.tsx)
+- `src/routes/portal.tsx` (refatorado — agora apenas landing/hub)
+- `src/routes/portal.login.tsx` (novo)
+- `src/routes/portal.painel.tsx` (novo)
+- `src/routes/configuracoes.tsx` (nova aba)
+- `src/routeTree.gen.ts` (registrar rotas)
 
-1. Rodar migration (estrutura completa).
-2. Criar `AppointmentDetailsDialog` reusável.
-3. Refatorar `/recebimento` (filtros + nova tabela + novo modal).
-4. Criar `/docas` e `/notas-fiscais` + rotas.
-5. Estender `/configuracoes` com as 7 abas.
-6. Atualizar `/portal` para consumir `work_hours`/`fixed_schedules`/`dock_blocks`.
-7. Atualizar menu em `Layout.tsx`.
-
-Pelo tamanho, vou entregar em uma única leva. Posso seguir?
+Sem mudanças em RLS de `appointments`/`suppliers` (já permitem insert público).
