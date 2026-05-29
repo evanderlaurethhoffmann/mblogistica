@@ -25,35 +25,123 @@ import { Route as CargasRouteImport } from './routes/cargas'
 import { Route as CadastrosRouteImport } from './routes/cadastros'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as PortalLoginRouteImport } from './routes/portal.login'
-import { Route as PortalPainelRouteImport } from './routes/portal.painel'
 import { Route as CadastrosIndexRouteImport } from './routes/cadastros.index'
+import { Route as PortalPainelRouteImport } from './routes/portal.painel'
+import { Route as PortalLoginRouteImport } from './routes/portal.login'
 import { Route as CadastrosMotoristasRouteImport } from './routes/cadastros.motoristas'
 import { Route as CadastrosFiliaisRouteImport } from './routes/cadastros.filiais'
 import { Route as CadastrosConferentesRouteImport } from './routes/cadastros.conferentes'
 
-const YmsRoute = YmsRouteImport.update({ id: '/yms', path: '/yms', getParentRoute: () => rootRouteImport } as any)
-const WmsRoute = WmsRouteImport.update({ id: '/wms', path: '/wms', getParentRoute: () => rootRouteImport } as any)
-const UsuariosRoute = UsuariosRouteImport.update({ id: '/usuarios', path: '/usuarios', getParentRoute: () => rootRouteImport } as any)
-const TmsRoute = TmsRouteImport.update({ id: '/tms', path: '/tms', getParentRoute: () => rootRouteImport } as any)
-const RecebimentoRoute = RecebimentoRouteImport.update({ id: '/recebimento', path: '/recebimento', getParentRoute: () => rootRouteImport } as any)
-const PortalRoute = PortalRouteImport.update({ id: '/portal', path: '/portal', getParentRoute: () => rootRouteImport } as any)
-const NotasFiscaisRoute = NotasFiscaisRouteImport.update({ id: '/notas-fiscais', path: '/notas-fiscais', getParentRoute: () => rootRouteImport } as any)
-const InternoRoute = InternoRouteImport.update({ id: '/interno', path: '/interno', getParentRoute: () => rootRouteImport } as any)
-const HistoricoRoute = HistoricoRouteImport.update({ id: '/historico', path: '/historico', getParentRoute: () => rootRouteImport } as any)
-const DocasRoute = DocasRouteImport.update({ id: '/docas', path: '/docas', getParentRoute: () => rootRouteImport } as any)
-const ConfiguracoesRoute = ConfiguracoesRouteImport.update({ id: '/configuracoes', path: '/configuracoes', getParentRoute: () => rootRouteImport } as any)
-const ColetaRoute = ColetaRouteImport.update({ id: '/coleta', path: '/coleta', getParentRoute: () => rootRouteImport } as any)
-const CargasRoute = CargasRouteImport.update({ id: '/cargas', path: '/cargas', getParentRoute: () => rootRouteImport } as any)
-const CadastrosRoute = CadastrosRouteImport.update({ id: '/cadastros', path: '/cadastros', getParentRoute: () => rootRouteImport } as any)
-const AnalyticsRoute = AnalyticsRouteImport.update({ id: '/analytics', path: '/analytics', getParentRoute: () => rootRouteImport } as any)
-const IndexRoute = IndexRouteImport.update({ id: '/', path: '/', getParentRoute: () => rootRouteImport } as any)
-const PortalLoginRoute = PortalLoginRouteImport.update({ id: '/login', path: '/login', getParentRoute: () => PortalRoute } as any)
-const PortalPainelRoute = PortalPainelRouteImport.update({ id: '/painel', path: '/painel', getParentRoute: () => PortalRoute } as any)
-const CadastrosIndexRoute = CadastrosIndexRouteImport.update({ id: '/', path: '/', getParentRoute: () => CadastrosRoute } as any)
-const CadastrosMotoristasRoute = CadastrosMotoristasRouteImport.update({ id: '/motoristas', path: '/motoristas', getParentRoute: () => CadastrosRoute } as any)
-const CadastrosFiliaisRoute = CadastrosFiliaisRouteImport.update({ id: '/filiais', path: '/filiais', getParentRoute: () => CadastrosRoute } as any)
-const CadastrosConferentesRoute = CadastrosConferentesRouteImport.update({ id: '/conferentes', path: '/conferentes', getParentRoute: () => CadastrosRoute } as any)
+const YmsRoute = YmsRouteImport.update({
+  id: '/yms',
+  path: '/yms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WmsRoute = WmsRouteImport.update({
+  id: '/wms',
+  path: '/wms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UsuariosRoute = UsuariosRouteImport.update({
+  id: '/usuarios',
+  path: '/usuarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TmsRoute = TmsRouteImport.update({
+  id: '/tms',
+  path: '/tms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecebimentoRoute = RecebimentoRouteImport.update({
+  id: '/recebimento',
+  path: '/recebimento',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortalRoute = PortalRouteImport.update({
+  id: '/portal',
+  path: '/portal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotasFiscaisRoute = NotasFiscaisRouteImport.update({
+  id: '/notas-fiscais',
+  path: '/notas-fiscais',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InternoRoute = InternoRouteImport.update({
+  id: '/interno',
+  path: '/interno',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistoricoRoute = HistoricoRouteImport.update({
+  id: '/historico',
+  path: '/historico',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocasRoute = DocasRouteImport.update({
+  id: '/docas',
+  path: '/docas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ColetaRoute = ColetaRouteImport.update({
+  id: '/coleta',
+  path: '/coleta',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CargasRoute = CargasRouteImport.update({
+  id: '/cargas',
+  path: '/cargas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CadastrosRoute = CadastrosRouteImport.update({
+  id: '/cadastros',
+  path: '/cadastros',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnalyticsRoute = AnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CadastrosIndexRoute = CadastrosIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CadastrosRoute,
+} as any)
+const PortalPainelRoute = PortalPainelRouteImport.update({
+  id: '/painel',
+  path: '/painel',
+  getParentRoute: () => PortalRoute,
+} as any)
+const PortalLoginRoute = PortalLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => PortalRoute,
+} as any)
+const CadastrosMotoristasRoute = CadastrosMotoristasRouteImport.update({
+  id: '/motoristas',
+  path: '/motoristas',
+  getParentRoute: () => CadastrosRoute,
+} as any)
+const CadastrosFiliaisRoute = CadastrosFiliaisRouteImport.update({
+  id: '/filiais',
+  path: '/filiais',
+  getParentRoute: () => CadastrosRoute,
+} as any)
+const CadastrosConferentesRoute = CadastrosConferentesRouteImport.update({
+  id: '/conferentes',
+  path: '/conferentes',
+  getParentRoute: () => CadastrosRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -72,11 +160,11 @@ export interface FileRoutesByFullPath {
   '/usuarios': typeof UsuariosRoute
   '/wms': typeof WmsRoute
   '/yms': typeof YmsRoute
-  '/portal/login': typeof PortalLoginRoute
-  '/portal/painel': typeof PortalPainelRoute
   '/cadastros/conferentes': typeof CadastrosConferentesRoute
   '/cadastros/filiais': typeof CadastrosFiliaisRoute
   '/cadastros/motoristas': typeof CadastrosMotoristasRoute
+  '/portal/login': typeof PortalLoginRoute
+  '/portal/painel': typeof PortalPainelRoute
   '/cadastros/': typeof CadastrosIndexRoute
 }
 export interface FileRoutesByTo {
@@ -95,11 +183,11 @@ export interface FileRoutesByTo {
   '/usuarios': typeof UsuariosRoute
   '/wms': typeof WmsRoute
   '/yms': typeof YmsRoute
-  '/portal/login': typeof PortalLoginRoute
-  '/portal/painel': typeof PortalPainelRoute
   '/cadastros/conferentes': typeof CadastrosConferentesRoute
   '/cadastros/filiais': typeof CadastrosFiliaisRoute
   '/cadastros/motoristas': typeof CadastrosMotoristasRoute
+  '/portal/login': typeof PortalLoginRoute
+  '/portal/painel': typeof PortalPainelRoute
   '/cadastros': typeof CadastrosIndexRoute
 }
 export interface FileRoutesById {
@@ -120,34 +208,85 @@ export interface FileRoutesById {
   '/usuarios': typeof UsuariosRoute
   '/wms': typeof WmsRoute
   '/yms': typeof YmsRoute
-  '/portal/login': typeof PortalLoginRoute
-  '/portal/painel': typeof PortalPainelRoute
   '/cadastros/conferentes': typeof CadastrosConferentesRoute
   '/cadastros/filiais': typeof CadastrosFiliaisRoute
   '/cadastros/motoristas': typeof CadastrosMotoristasRoute
+  '/portal/login': typeof PortalLoginRoute
+  '/portal/painel': typeof PortalPainelRoute
   '/cadastros/': typeof CadastrosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/' | '/analytics' | '/cadastros' | '/cargas' | '/coleta' | '/configuracoes'
-    | '/docas' | '/historico' | '/interno' | '/notas-fiscais' | '/portal'
-    | '/recebimento' | '/tms' | '/usuarios' | '/wms' | '/yms'
-    | '/portal/login' | '/portal/painel'
-    | '/cadastros/conferentes' | '/cadastros/filiais' | '/cadastros/motoristas' | '/cadastros/'
+    | '/'
+    | '/analytics'
+    | '/cadastros'
+    | '/cargas'
+    | '/coleta'
+    | '/configuracoes'
+    | '/docas'
+    | '/historico'
+    | '/interno'
+    | '/notas-fiscais'
+    | '/portal'
+    | '/recebimento'
+    | '/tms'
+    | '/usuarios'
+    | '/wms'
+    | '/yms'
+    | '/cadastros/conferentes'
+    | '/cadastros/filiais'
+    | '/cadastros/motoristas'
+    | '/portal/login'
+    | '/portal/painel'
+    | '/cadastros/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/' | '/analytics' | '/cargas' | '/coleta' | '/configuracoes'
-    | '/docas' | '/historico' | '/interno' | '/notas-fiscais' | '/portal'
-    | '/recebimento' | '/tms' | '/usuarios' | '/wms' | '/yms'
-    | '/portal/login' | '/portal/painel'
-    | '/cadastros/conferentes' | '/cadastros/filiais' | '/cadastros/motoristas' | '/cadastros'
+    | '/'
+    | '/analytics'
+    | '/cargas'
+    | '/coleta'
+    | '/configuracoes'
+    | '/docas'
+    | '/historico'
+    | '/interno'
+    | '/notas-fiscais'
+    | '/portal'
+    | '/recebimento'
+    | '/tms'
+    | '/usuarios'
+    | '/wms'
+    | '/yms'
+    | '/cadastros/conferentes'
+    | '/cadastros/filiais'
+    | '/cadastros/motoristas'
+    | '/portal/login'
+    | '/portal/painel'
+    | '/cadastros'
   id:
-    | '__root__' | '/' | '/analytics' | '/cadastros' | '/cargas' | '/coleta' | '/configuracoes'
-    | '/docas' | '/historico' | '/interno' | '/notas-fiscais' | '/portal'
-    | '/recebimento' | '/tms' | '/usuarios' | '/wms' | '/yms'
-    | '/portal/login' | '/portal/painel'
-    | '/cadastros/conferentes' | '/cadastros/filiais' | '/cadastros/motoristas' | '/cadastros/'
+    | '__root__'
+    | '/'
+    | '/analytics'
+    | '/cadastros'
+    | '/cargas'
+    | '/coleta'
+    | '/configuracoes'
+    | '/docas'
+    | '/historico'
+    | '/interno'
+    | '/notas-fiscais'
+    | '/portal'
+    | '/recebimento'
+    | '/tms'
+    | '/usuarios'
+    | '/wms'
+    | '/yms'
+    | '/cadastros/conferentes'
+    | '/cadastros/filiais'
+    | '/cadastros/motoristas'
+    | '/portal/login'
+    | '/portal/painel'
+    | '/cadastros/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -171,28 +310,160 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/yms': { id: '/yms'; path: '/yms'; fullPath: '/yms'; preLoaderRoute: typeof YmsRouteImport; parentRoute: typeof rootRouteImport }
-    '/wms': { id: '/wms'; path: '/wms'; fullPath: '/wms'; preLoaderRoute: typeof WmsRouteImport; parentRoute: typeof rootRouteImport }
-    '/usuarios': { id: '/usuarios'; path: '/usuarios'; fullPath: '/usuarios'; preLoaderRoute: typeof UsuariosRouteImport; parentRoute: typeof rootRouteImport }
-    '/tms': { id: '/tms'; path: '/tms'; fullPath: '/tms'; preLoaderRoute: typeof TmsRouteImport; parentRoute: typeof rootRouteImport }
-    '/recebimento': { id: '/recebimento'; path: '/recebimento'; fullPath: '/recebimento'; preLoaderRoute: typeof RecebimentoRouteImport; parentRoute: typeof rootRouteImport }
-    '/portal': { id: '/portal'; path: '/portal'; fullPath: '/portal'; preLoaderRoute: typeof PortalRouteImport; parentRoute: typeof rootRouteImport }
-    '/notas-fiscais': { id: '/notas-fiscais'; path: '/notas-fiscais'; fullPath: '/notas-fiscais'; preLoaderRoute: typeof NotasFiscaisRouteImport; parentRoute: typeof rootRouteImport }
-    '/interno': { id: '/interno'; path: '/interno'; fullPath: '/interno'; preLoaderRoute: typeof InternoRouteImport; parentRoute: typeof rootRouteImport }
-    '/historico': { id: '/historico'; path: '/historico'; fullPath: '/historico'; preLoaderRoute: typeof HistoricoRouteImport; parentRoute: typeof rootRouteImport }
-    '/docas': { id: '/docas'; path: '/docas'; fullPath: '/docas'; preLoaderRoute: typeof DocasRouteImport; parentRoute: typeof rootRouteImport }
-    '/configuracoes': { id: '/configuracoes'; path: '/configuracoes'; fullPath: '/configuracoes'; preLoaderRoute: typeof ConfiguracoesRouteImport; parentRoute: typeof rootRouteImport }
-    '/coleta': { id: '/coleta'; path: '/coleta'; fullPath: '/coleta'; preLoaderRoute: typeof ColetaRouteImport; parentRoute: typeof rootRouteImport }
-    '/cargas': { id: '/cargas'; path: '/cargas'; fullPath: '/cargas'; preLoaderRoute: typeof CargasRouteImport; parentRoute: typeof rootRouteImport }
-    '/cadastros': { id: '/cadastros'; path: '/cadastros'; fullPath: '/cadastros'; preLoaderRoute: typeof CadastrosRouteImport; parentRoute: typeof rootRouteImport }
-    '/analytics': { id: '/analytics'; path: '/analytics'; fullPath: '/analytics'; preLoaderRoute: typeof AnalyticsRouteImport; parentRoute: typeof rootRouteImport }
-    '/': { id: '/'; path: '/'; fullPath: '/'; preLoaderRoute: typeof IndexRouteImport; parentRoute: typeof rootRouteImport }
-    '/portal/login': { id: '/portal/login'; path: '/login'; fullPath: '/portal/login'; preLoaderRoute: typeof PortalLoginRouteImport; parentRoute: typeof PortalRoute }
-    '/portal/painel': { id: '/portal/painel'; path: '/painel'; fullPath: '/portal/painel'; preLoaderRoute: typeof PortalPainelRouteImport; parentRoute: typeof PortalRoute }
-    '/cadastros/': { id: '/cadastros/'; path: '/'; fullPath: '/cadastros/'; preLoaderRoute: typeof CadastrosIndexRouteImport; parentRoute: typeof CadastrosRoute }
-    '/cadastros/motoristas': { id: '/cadastros/motoristas'; path: '/motoristas'; fullPath: '/cadastros/motoristas'; preLoaderRoute: typeof CadastrosMotoristasRouteImport; parentRoute: typeof CadastrosRoute }
-    '/cadastros/filiais': { id: '/cadastros/filiais'; path: '/filiais'; fullPath: '/cadastros/filiais'; preLoaderRoute: typeof CadastrosFiliaisRouteImport; parentRoute: typeof CadastrosRoute }
-    '/cadastros/conferentes': { id: '/cadastros/conferentes'; path: '/conferentes'; fullPath: '/cadastros/conferentes'; preLoaderRoute: typeof CadastrosConferentesRouteImport; parentRoute: typeof CadastrosRoute }
+    '/yms': {
+      id: '/yms'
+      path: '/yms'
+      fullPath: '/yms'
+      preLoaderRoute: typeof YmsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/wms': {
+      id: '/wms'
+      path: '/wms'
+      fullPath: '/wms'
+      preLoaderRoute: typeof WmsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/usuarios': {
+      id: '/usuarios'
+      path: '/usuarios'
+      fullPath: '/usuarios'
+      preLoaderRoute: typeof UsuariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tms': {
+      id: '/tms'
+      path: '/tms'
+      fullPath: '/tms'
+      preLoaderRoute: typeof TmsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recebimento': {
+      id: '/recebimento'
+      path: '/recebimento'
+      fullPath: '/recebimento'
+      preLoaderRoute: typeof RecebimentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portal': {
+      id: '/portal'
+      path: '/portal'
+      fullPath: '/portal'
+      preLoaderRoute: typeof PortalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notas-fiscais': {
+      id: '/notas-fiscais'
+      path: '/notas-fiscais'
+      fullPath: '/notas-fiscais'
+      preLoaderRoute: typeof NotasFiscaisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/interno': {
+      id: '/interno'
+      path: '/interno'
+      fullPath: '/interno'
+      preLoaderRoute: typeof InternoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/historico': {
+      id: '/historico'
+      path: '/historico'
+      fullPath: '/historico'
+      preLoaderRoute: typeof HistoricoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docas': {
+      id: '/docas'
+      path: '/docas'
+      fullPath: '/docas'
+      preLoaderRoute: typeof DocasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/configuracoes': {
+      id: '/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof ConfiguracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/coleta': {
+      id: '/coleta'
+      path: '/coleta'
+      fullPath: '/coleta'
+      preLoaderRoute: typeof ColetaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cargas': {
+      id: '/cargas'
+      path: '/cargas'
+      fullPath: '/cargas'
+      preLoaderRoute: typeof CargasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cadastros': {
+      id: '/cadastros'
+      path: '/cadastros'
+      fullPath: '/cadastros'
+      preLoaderRoute: typeof CadastrosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analytics': {
+      id: '/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cadastros/': {
+      id: '/cadastros/'
+      path: '/'
+      fullPath: '/cadastros/'
+      preLoaderRoute: typeof CadastrosIndexRouteImport
+      parentRoute: typeof CadastrosRoute
+    }
+    '/portal/painel': {
+      id: '/portal/painel'
+      path: '/painel'
+      fullPath: '/portal/painel'
+      preLoaderRoute: typeof PortalPainelRouteImport
+      parentRoute: typeof PortalRoute
+    }
+    '/portal/login': {
+      id: '/portal/login'
+      path: '/login'
+      fullPath: '/portal/login'
+      preLoaderRoute: typeof PortalLoginRouteImport
+      parentRoute: typeof PortalRoute
+    }
+    '/cadastros/motoristas': {
+      id: '/cadastros/motoristas'
+      path: '/motoristas'
+      fullPath: '/cadastros/motoristas'
+      preLoaderRoute: typeof CadastrosMotoristasRouteImport
+      parentRoute: typeof CadastrosRoute
+    }
+    '/cadastros/filiais': {
+      id: '/cadastros/filiais'
+      path: '/filiais'
+      fullPath: '/cadastros/filiais'
+      preLoaderRoute: typeof CadastrosFiliaisRouteImport
+      parentRoute: typeof CadastrosRoute
+    }
+    '/cadastros/conferentes': {
+      id: '/cadastros/conferentes'
+      path: '/conferentes'
+      fullPath: '/cadastros/conferentes'
+      preLoaderRoute: typeof CadastrosConferentesRouteImport
+      parentRoute: typeof CadastrosRoute
+    }
   }
 }
 
@@ -202,38 +473,48 @@ interface CadastrosRouteChildren {
   CadastrosMotoristasRoute: typeof CadastrosMotoristasRoute
   CadastrosIndexRoute: typeof CadastrosIndexRoute
 }
+
 const CadastrosRouteChildren: CadastrosRouteChildren = {
-  CadastrosConferentesRoute,
-  CadastrosFiliaisRoute,
-  CadastrosMotoristasRoute,
-  CadastrosIndexRoute,
+  CadastrosConferentesRoute: CadastrosConferentesRoute,
+  CadastrosFiliaisRoute: CadastrosFiliaisRoute,
+  CadastrosMotoristasRoute: CadastrosMotoristasRoute,
+  CadastrosIndexRoute: CadastrosIndexRoute,
 }
-const CadastrosRouteWithChildren = CadastrosRoute._addFileChildren(CadastrosRouteChildren)
+
+const CadastrosRouteWithChildren = CadastrosRoute._addFileChildren(
+  CadastrosRouteChildren,
+)
 
 interface PortalRouteChildren {
   PortalLoginRoute: typeof PortalLoginRoute
   PortalPainelRoute: typeof PortalPainelRoute
 }
-const PortalRouteChildren: PortalRouteChildren = { PortalLoginRoute, PortalPainelRoute }
-const PortalRouteWithChildren = PortalRoute._addFileChildren(PortalRouteChildren)
+
+const PortalRouteChildren: PortalRouteChildren = {
+  PortalLoginRoute: PortalLoginRoute,
+  PortalPainelRoute: PortalPainelRoute,
+}
+
+const PortalRouteWithChildren =
+  PortalRoute._addFileChildren(PortalRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute,
-  AnalyticsRoute,
+  IndexRoute: IndexRoute,
+  AnalyticsRoute: AnalyticsRoute,
   CadastrosRoute: CadastrosRouteWithChildren,
-  CargasRoute,
-  ColetaRoute,
-  ConfiguracoesRoute,
-  DocasRoute,
-  HistoricoRoute,
-  InternoRoute,
-  NotasFiscaisRoute,
+  CargasRoute: CargasRoute,
+  ColetaRoute: ColetaRoute,
+  ConfiguracoesRoute: ConfiguracoesRoute,
+  DocasRoute: DocasRoute,
+  HistoricoRoute: HistoricoRoute,
+  InternoRoute: InternoRoute,
+  NotasFiscaisRoute: NotasFiscaisRoute,
   PortalRoute: PortalRouteWithChildren,
-  RecebimentoRoute,
-  TmsRoute,
-  UsuariosRoute,
-  WmsRoute,
-  YmsRoute,
+  RecebimentoRoute: RecebimentoRoute,
+  TmsRoute: TmsRoute,
+  UsuariosRoute: UsuariosRoute,
+  WmsRoute: WmsRoute,
+  YmsRoute: YmsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
