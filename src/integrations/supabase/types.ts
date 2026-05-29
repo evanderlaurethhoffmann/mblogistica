@@ -555,12 +555,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      crypt_password: {
+        Args: { p: string }
+        Returns: {
+          hash: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      verify_supplier_password: {
+        Args: { h: string; p: string }
+        Returns: {
+          ok: boolean
+        }[]
       }
     }
     Enums: {
