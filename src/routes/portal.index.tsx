@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CalendarCheck, LogIn, UserPlus } from "lucide-react";
 
-export const Route = createFileRoute("/portal")({
+export const Route = createFileRoute("/portal/")({
   head: () => ({
     meta: [
       { title: "Portal do Fornecedor — YAN" },
