@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Truck, Building2, ArrowRight, Lock, Globe, Package } from "lucide-react";
+import { Truck, Building2, ArrowRight, Lock, Globe } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/")({
