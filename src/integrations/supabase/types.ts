@@ -343,18 +343,33 @@ export type Database = {
       }
       profiles: {
         Row: {
+          acesso_analytics: boolean
+          acesso_tms: boolean
+          acesso_wms: boolean
+          acesso_yms: boolean
+          category: string
           created_at: string
           email: string
           id: string
           name: string
         }
         Insert: {
+          acesso_analytics?: boolean
+          acesso_tms?: boolean
+          acesso_wms?: boolean
+          acesso_yms?: boolean
+          category?: string
           created_at?: string
           email: string
           id: string
           name?: string
         }
         Update: {
+          acesso_analytics?: boolean
+          acesso_tms?: boolean
+          acesso_wms?: boolean
+          acesso_yms?: boolean
+          category?: string
           created_at?: string
           email?: string
           id?: string
