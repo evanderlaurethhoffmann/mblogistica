@@ -118,14 +118,14 @@ const CadastrosIndexRoute = CadastrosIndexRouteImport.update({
   getParentRoute: () => CadastrosRoute,
 } as any)
 const PortalPainelRoute = PortalPainelRouteImport.update({
-  id: '/painel',
-  path: '/painel',
-  getParentRoute: () => PortalRoute,
+  id: '/portal/painel',
+  path: '/portal/painel',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const PortalLoginRoute = PortalLoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => PortalRoute,
+  id: '/portal/login',
+  path: '/portal/login',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const CadastrosMotoristasRoute = CadastrosMotoristasRouteImport.update({
   id: '/motoristas',
@@ -305,6 +305,8 @@ export interface RootRouteChildren {
   UsuariosRoute: typeof UsuariosRoute
   WmsRoute: typeof WmsRoute
   YmsRoute: typeof YmsRoute
+  PortalLoginRoute: typeof PortalLoginRoute
+  PortalPainelRoute: typeof PortalPainelRoute
   PortalIndexRoute: typeof PortalIndexRoute
 }
 
@@ -431,17 +433,17 @@ declare module '@tanstack/react-router' {
     }
     '/portal/painel': {
       id: '/portal/painel'
-      path: '/painel'
+      path: '/portal/painel'
       fullPath: '/portal/painel'
       preLoaderRoute: typeof PortalPainelRouteImport
-      parentRoute: typeof PortalRoute
+      parentRoute: typeof rootRouteImport
     }
     '/portal/login': {
       id: '/portal/login'
-      path: '/login'
+      path: '/portal/login'
       fullPath: '/portal/login'
       preLoaderRoute: typeof PortalLoginRouteImport
-      parentRoute: typeof PortalRoute
+      parentRoute: typeof rootRouteImport
     }
     '/cadastros/motoristas': {
       id: '/cadastros/motoristas'
@@ -501,6 +503,8 @@ const rootRouteChildren: RootRouteChildren = {
   UsuariosRoute: UsuariosRoute,
   WmsRoute: WmsRoute,
   YmsRoute: YmsRoute,
+  PortalLoginRoute: PortalLoginRoute,
+  PortalPainelRoute: PortalPainelRoute,
   PortalIndexRoute: PortalIndexRoute,
 }
 export const routeTree = rootRouteImport
