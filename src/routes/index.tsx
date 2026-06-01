@@ -27,18 +27,12 @@ function HubPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-background to-slate-100 dark:from-slate-950 dark:via-background dark:to-slate-900">
       <header className="border-b bg-card/70 backdrop-blur-sm">
-        <div className="mx-auto max-w-6xl px-6 py-6 flex flex-col items-center text-center gap-2">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <Package className="h-7 w-7 text-primary" />
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-              SISTEMA INTEGRADO DE LOGÍSTICA — CD
-            </h1>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Hub central de acessos · Centro de Distribuição
-          </p>
+        <div className="mx-auto max-w-6xl px-6 py-8 flex flex-col items-center text-center">
+          <img
+            src="/logo.png"
+            alt="YAN Dashboard - Your Active Network"
+            className="max-w-[220px] w-full h-auto"
+          />
         </div>
       </header>
 
