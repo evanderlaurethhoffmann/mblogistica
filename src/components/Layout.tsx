@@ -95,8 +95,19 @@ function getModule(pathname: string): ModuleKey | null {
 }
 
 export function Layout() {
-  const { user, loading, isAdmin, role, signOut } = useAuth();
+  const { user, loading, isAdmin, role, canAccess, signOut } = useAuth();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
+
+  const moduleKeyEarly = getModule(pathname);
+
+  useEffect(() => {
+    if (loading || !user) return;
+    if (moduleKeyEarly && !canAccess(moduleKeyEarly)) {
+      toast.error("Acesso negado: você não tem permissão para este módulo.");
+      navigate({ to: "/interno", replace: true });
+    }
+  }, [loading, user, moduleKeyEarly, canAccess, navigate]);
 
   // Rotas públicas (sem chrome interno)
   if (pathname === "/" || pathname.startsWith("/portal")) {
