@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,7 +17,7 @@ import {
 import { Trash2, Plus, UserCog, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { AdminOnly } from "@/components/Layout";
-import { createUser, deleteUser, updateUserAccess } from "@/lib/users.functions";
+import { createUser, deleteUser, getInternalUsers, updateUserAccess } from "@/lib/users.functions";
 
 export const Route = createFileRoute("/usuarios")({
   head: () => ({ meta: [{ title: "Usuários — YAN Dashboard" }] }),
@@ -39,7 +38,7 @@ const CATEGORY_PRESETS: Record<Category, { role: Role } & Perms> = {
 const CATEGORIES: Category[] = ["Administrador", "Supervisor", "CPD", "Conferente"];
 
 const emptyForm = {
-  name: "", email: "", password: "",
+  username: "", name: "", email: "", password: "",
   category: "Conferente" as Category,
   role: "operator" as Role,
   acesso_yms: false, acesso_wms: false, acesso_tms: true, acesso_analytics: false,
@@ -75,6 +74,7 @@ function UsuariosPage() {
   const callCreate = useServerFn(createUser);
   const callUpdate = useServerFn(updateUserAccess);
   const callDelete = useServerFn(deleteUser);
+  const callGetUsers = useServerFn(getInternalUsers);
 
   const [form, setForm] = useState(emptyForm);
   const [editing, setEditing] = useState<null | {
@@ -84,18 +84,7 @@ function UsuariosPage() {
 
   const { data: users = [] } = useQuery({
     queryKey: ["users-with-roles"],
-    queryFn: async () => {
-      const { data: profiles, error } = await supabase
-        .from("profiles")
-        .select("id, email, name, category, acesso_yms, acesso_wms, acesso_tms, acesso_analytics, created_at")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      const { data: roles } = await supabase.from("user_roles").select("user_id, role");
-      return (profiles as any[]).map((p) => ({
-        ...p,
-        role: (roles?.find((r) => r.user_id === p.id)?.role ?? "operator") as Role,
-      }));
-    },
+    queryFn: async () => callGetUsers(),
   });
 
   function applyCategory(cat: Category, target: "form" | "editing") {
@@ -109,7 +98,7 @@ function UsuariosPage() {
 
   const add = useMutation({
     mutationFn: async () => {
-      if (!form.name || !form.email || !form.password) throw new Error("Preencha todos os campos.");
+      if (!form.username || !form.name || !form.email || !form.password) throw new Error("Preencha todos os campos.");
       if (form.password.length < 6) throw new Error("Senha deve ter ao menos 6 caracteres.");
       await callCreate({ data: form });
     },
@@ -168,9 +157,13 @@ function UsuariosPage() {
       <Card className="p-6">
         <h2 className="font-semibold mb-4">Novo usuário</h2>
         <form onSubmit={(e) => { e.preventDefault(); add.mutate(); }} className="space-y-4">
-          <div className="grid gap-3 md:grid-cols-3">
+          <div className="grid gap-3 md:grid-cols-4">
             <div className="space-y-1">
-              <Label>Nome</Label>
+              <Label>Nome de Usuário</Label>
+              <Input autoCapitalize="none" autoComplete="username" placeholder="evander.hoffmann" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value.toLowerCase().trim() })} />
+            </div>
+            <div className="space-y-1">
+              <Label>Nome Completo</Label>
               <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
             </div>
             <div className="space-y-1">
@@ -220,8 +213,10 @@ function UsuariosPage() {
           {users.map((u: any) => (
             <div key={u.id} className="flex items-center justify-between gap-3 flex-wrap border rounded-md p-3">
               <div className="min-w-0">
-                <div className="font-medium truncate">{u.name || "(sem nome)"}</div>
-                <div className="text-xs text-muted-foreground truncate">{u.email}</div>
+                <div className="font-medium truncate">{u.name || u.nome_completo || "(sem nome)"}</div>
+                <div className="text-xs text-muted-foreground truncate">
+                  @{u.username || String(u.email || "").split("@")[0]} · {u.email}
+                </div>
                 <div className="flex flex-wrap gap-1 mt-1.5">
                   <Badge variant={u.role === "admin" ? "default" : "secondary"}>{u.category || (u.role === "admin" ? "Administrador" : "Conferente")}</Badge>
                   {u.acesso_yms && <Badge variant="outline">YMS</Badge>}
