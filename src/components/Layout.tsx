@@ -95,7 +95,7 @@ function getModule(pathname: string): ModuleKey | null {
 }
 
 export function Layout() {
-  const { user, loading, isAdmin, role, canAccess, signOut } = useAuth();
+  const { user, loading, isAdmin, role, username, displayName, category, canAccess, signOut } = useAuth();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
 
@@ -132,7 +132,7 @@ export function Layout() {
             </div>
             <div className="flex items-center gap-3 text-sm">
               <span className="text-muted-foreground hidden sm:inline">
-                {user.email} <span className="ml-1 text-xs uppercase font-bold text-primary">({role})</span>
+                {displayName || username || user.email} <span className="ml-1 text-xs uppercase font-bold text-primary">({category || role})</span>
               </span>
               <Button size="sm" variant="ghost" onClick={signOut} className="gap-1">
                 <LogOut className="h-4 w-4" /> Sair
