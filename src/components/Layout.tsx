@@ -95,7 +95,7 @@ function getModule(pathname: string): ModuleKey | null {
 }
 
 export function Layout() {
-  const { user, loading, isAdmin, role, canAccess, signOut } = useAuth();
+  const { user, loading, isAdmin, role, username, displayName, category, canAccess, signOut } = useAuth();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
 
@@ -132,7 +132,7 @@ export function Layout() {
             </div>
             <div className="flex items-center gap-3 text-sm">
               <span className="text-muted-foreground hidden sm:inline">
-                {user.email} <span className="ml-1 text-xs uppercase font-bold text-primary">({role})</span>
+                {displayName || username || user.email} <span className="ml-1 text-xs uppercase font-bold text-primary">({category || role})</span>
               </span>
               <Button size="sm" variant="ghost" onClick={signOut} className="gap-1">
                 <LogOut className="h-4 w-4" /> Sair
@@ -214,8 +214,9 @@ export function Layout() {
         </nav>
 
         <div className="p-3 border-t text-xs text-muted-foreground">
-          <div className="truncate">{user.email}</div>
-          <div className="uppercase font-bold text-primary text-[10px] mt-0.5">{role}</div>
+          <div className="truncate">{displayName || user.email}</div>
+          <div className="truncate text-[11px] mt-0.5">@{username || String(user.email || "").split("@")[0]}</div>
+          <div className="uppercase font-bold text-primary text-[10px] mt-0.5">{category || role}</div>
         </div>
       </aside>
 

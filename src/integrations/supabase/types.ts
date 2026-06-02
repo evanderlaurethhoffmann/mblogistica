@@ -352,6 +352,9 @@ export type Database = {
           email: string
           id: string
           name: string
+          nome_completo: string
+          perfil_categoria: string
+          username: string
         }
         Insert: {
           acesso_analytics?: boolean
@@ -363,6 +366,9 @@ export type Database = {
           email: string
           id: string
           name?: string
+          nome_completo: string
+          perfil_categoria: string
+          username: string
         }
         Update: {
           acesso_analytics?: boolean
@@ -374,6 +380,9 @@ export type Database = {
           email?: string
           id?: string
           name?: string
+          nome_completo?: string
+          perfil_categoria?: string
+          username?: string
         }
         Relationships: []
       }

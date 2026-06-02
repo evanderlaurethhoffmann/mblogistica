@@ -17,6 +17,8 @@ interface AuthCtx {
   user: User | null;
   session: Session | null;
   role: Role | null;
+  username: string | null;
+  displayName: string | null;
   category: string | null;
   permissions: ModulePermissions;
   loading: boolean;
@@ -28,7 +30,7 @@ interface AuthCtx {
 const defaultPerms: ModulePermissions = { yms: false, wms: false, tms: false, analytics: false };
 
 const Ctx = createContext<AuthCtx>({
-  user: null, session: null, role: null, category: null,
+  user: null, session: null, role: null, username: null, displayName: null, category: null,
   permissions: defaultPerms, loading: true, isAdmin: false,
   canAccess: () => false,
   signOut: async () => {},
@@ -37,6 +39,8 @@ const Ctx = createContext<AuthCtx>({
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [role, setRole] = useState<Role | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
   const [category, setCategory] = useState<string | null>(null);
   const [permissions, setPermissions] = useState<ModulePermissions>(defaultPerms);
   const [loading, setLoading] = useState(true);
@@ -46,11 +50,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
       setSession(s);
       if (s?.user) {
-        setTimeout(() => loadProfile(s.user.id), 0);
+        setLoading(true);
+        setTimeout(() => loadProfile(s.user.id).finally(() => setLoading(false)), 0);
       } else {
         setRole(null);
+        setUsername(null);
+        setDisplayName(null);
         setCategory(null);
         setPermissions(defaultPerms);
+        setLoading(false);
       }
       qc.invalidateQueries();
     });
@@ -68,19 +76,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loadProfile = async (uid: string) => {
     const [{ data: roleRow }, { data: profile }] = await Promise.all([
       supabase.from("user_roles").select("role").eq("user_id", uid).order("role").limit(1).maybeSingle(),
-      supabase.from("profiles").select("category, acesso_yms, acesso_wms, acesso_tms, acesso_analytics").eq("id", uid).maybeSingle(),
+      supabase.from("profiles").select("username, nome_completo, name, category, perfil_categoria, acesso_yms, acesso_wms, acesso_tms, acesso_analytics").eq("id", uid).maybeSingle(),
     ]);
     const r = (roleRow?.role as Role) ?? "operator";
+    const p = profile as any;
     setRole(r);
-    setCategory((profile as any)?.category ?? null);
+    setUsername(p?.username ?? null);
+    setDisplayName(p?.nome_completo ?? p?.name ?? null);
+    setCategory(p?.perfil_categoria ?? p?.category ?? null);
     if (r === "admin") {
       setPermissions({ yms: true, wms: true, tms: true, analytics: true });
     } else {
       setPermissions({
-        yms: !!(profile as any)?.acesso_yms,
-        wms: !!(profile as any)?.acesso_wms,
-        tms: !!(profile as any)?.acesso_tms,
-        analytics: !!(profile as any)?.acesso_analytics,
+        yms: !!p?.acesso_yms,
+        wms: !!p?.acesso_wms,
+        tms: !!p?.acesso_tms,
+        analytics: !!p?.acesso_analytics,
       });
     }
   };
@@ -89,6 +100,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
     setRole(null);
     setSession(null);
+    setUsername(null);
+    setDisplayName(null);
+    setCategory(null);
     setPermissions(defaultPerms);
   };
 
@@ -100,6 +114,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user: session?.user ?? null,
       session,
       role,
+      username,
+      displayName,
       category,
       permissions,
       loading,
