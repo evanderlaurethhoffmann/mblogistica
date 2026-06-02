@@ -50,13 +50,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
       setSession(s);
       if (s?.user) {
-        setTimeout(() => loadProfile(s.user.id), 0);
+        setLoading(true);
+        setTimeout(() => loadProfile(s.user.id).finally(() => setLoading(false)), 0);
       } else {
         setRole(null);
         setUsername(null);
         setDisplayName(null);
         setCategory(null);
         setPermissions(defaultPerms);
+        setLoading(false);
       }
       qc.invalidateQueries();
     });
@@ -100,6 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession(null);
     setUsername(null);
     setDisplayName(null);
+    setCategory(null);
     setPermissions(defaultPerms);
   };
 

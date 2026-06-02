@@ -17,10 +17,15 @@ export function LoginPage() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { email } = await resolveLogin({ data: { identifier } });
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) toast.error(error.message);
+    try {
+      const { email } = await resolveLogin({ data: { identifier } });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) toast.error(error.message);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível entrar no portal interno.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -40,7 +45,7 @@ export function LoginPage() {
             <Input id="password" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Aguarde..." : "Entrar"}
+            {loading ? "Aguarde..." : "Entrar no Portal"}
           </Button>
         </form>
         <p className="text-xs text-muted-foreground text-center mt-6">
