@@ -214,8 +214,9 @@ export function Layout() {
         </nav>
 
         <div className="p-3 border-t text-xs text-muted-foreground">
-          <div className="truncate">{user.email}</div>
-          <div className="uppercase font-bold text-primary text-[10px] mt-0.5">{role}</div>
+          <div className="truncate">{displayName || user.email}</div>
+          <div className="truncate text-[11px] mt-0.5">@{username || String(user.email || "").split("@")[0]}</div>
+          <div className="uppercase font-bold text-primary text-[10px] mt-0.5">{category || role}</div>
         </div>
       </aside>
 
