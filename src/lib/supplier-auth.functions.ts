@@ -163,6 +163,18 @@ export const createSupplierAppointment = createServerFn({ method: "POST" })
   .inputValidator((i) => NewApptSchema.parse(i))
   .handler(async ({ data }) => {
     const s = await getSupplierFromToken(data.token);
+    // Bloqueio de slot: impede solicitar horário já reservado (Pendente ou Confirmado).
+    const { data: conflict, error: conflictErr } = await sb()
+      .from("appointments")
+      .select("id")
+      .eq("scheduled_date", data.scheduled_date)
+      .eq("scheduled_time", data.scheduled_time)
+      .in("status", ["Pendente", "Confirmado"])
+      .limit(1);
+    if (conflictErr) throw new Error(conflictErr.message);
+    if (conflict && conflict.length > 0) {
+      throw new Error("Este horário acabou de ser reservado por outro fornecedor. Escolha outro horário.");
+    }
     const { data: row, error } = await sb().from("appointments").insert({
       supplier_id: s.id,
       vehicle_type: data.vehicle_type,
