@@ -144,7 +144,7 @@ export function SupplierAppointmentDialog({ open, onOpenChange, token, supplierI
         {step === 1 && (
           <div className="space-y-4">
             <div className="rounded-md border-2 border-destructive/60 bg-destructive/10 p-3 text-sm font-semibold text-destructive">
-              ⚠️ ATENÇÃO: O envio da Nota Fiscal (XML ou PDF) é OBRIGATÓRIO. Sem o anexo da NF a solicitação NÃO será aceita.
+              ⚠️ ATENÇÃO: O envio da Nota Fiscal (XML, PDF ou Imagem) é OBRIGATÓRIO. Sem o anexo da NF a solicitação NÃO será aceita.
             </div>
             <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-1">
@@ -170,12 +170,12 @@ export function SupplierAppointmentDialog({ open, onOpenChange, token, supplierI
                 <Input value={cargo.driver_contact} onChange={(e) => setCargo({ ...cargo, driver_contact: e.target.value })} placeholder="(00) 00000-0000" />
               </div>
               <div className="space-y-1">
-                <Label className="text-destructive font-semibold">NF (XML ou PDF) * — OBRIGATÓRIO</Label>
-                <Input type="file" accept=".xml,.pdf" required onChange={(e) => setNfFile(e.target.files?.[0] ?? null)} className={nfFile ? "" : "border-destructive"} />
+                <Label className="text-destructive font-semibold">NF (XML, PDF ou Imagem) * — OBRIGATÓRIO</Label>
+                <Input type="file" accept=".xml,.pdf,.jpg,.jpeg,.png,.webp" required onChange={(e) => setNfFile(e.target.files?.[0] ?? null)} className={nfFile ? "" : "border-destructive"} />
                 {nfFile ? (
                   <p className="text-xs text-green-600">✓ Arquivo selecionado: {nfFile.name}</p>
                 ) : (
-                  <p className="text-xs text-destructive">Anexe a Nota Fiscal para conseguir avançar.</p>
+                  <p className="text-xs text-destructive">Anexe a Nota Fiscal (XML, PDF ou foto) para conseguir avançar.</p>
                 )}
               </div>
               <div className="space-y-1">
