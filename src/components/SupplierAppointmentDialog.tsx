@@ -88,16 +88,18 @@ export function SupplierAppointmentDialog({ open, onOpenChange, token, supplierI
       toast.error("Preencha todos os campos obrigatórios."); return;
     }
     if (!cargo.nf_volumes || cargo.nf_volumes <= 0) { toast.error("Informe a quantidade de volumes."); return; }
-    if (nfFile) {
-      const ext = nfFile.name.split(".").pop()?.toLowerCase() ?? "bin";
-      if (!["xml", "pdf"].includes(ext)) { toast.error("Arquivo deve ser XML ou PDF."); return; }
-      const path = `${supplierId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const { error } = await supabase.storage.from("nf-uploads").upload(path, nfFile, {
-        contentType: ext === "pdf" ? "application/pdf" : "application/xml",
-      });
-      if (error) { toast.error(error.message); return; }
-      setCargo((c) => ({ ...c, nf_file_url: path }));
+    if (!nfFile) {
+      toast.error("Anexar a Nota Fiscal (XML ou PDF) é OBRIGATÓRIO para prosseguir.");
+      return;
     }
+    const ext = nfFile.name.split(".").pop()?.toLowerCase() ?? "bin";
+    if (!["xml", "pdf"].includes(ext)) { toast.error("Arquivo da NF deve ser XML ou PDF."); return; }
+    const path = `${supplierId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error } = await supabase.storage.from("nf-uploads").upload(path, nfFile, {
+      contentType: ext === "pdf" ? "application/pdf" : "application/xml",
+    });
+    if (error) { toast.error(error.message); return; }
+    setCargo((c) => ({ ...c, nf_file_url: path }));
     setStep(2);
   };
 
@@ -141,6 +143,9 @@ export function SupplierAppointmentDialog({ open, onOpenChange, token, supplierI
 
         {step === 1 && (
           <div className="space-y-4">
+            <div className="rounded-md border-2 border-destructive/60 bg-destructive/10 p-3 text-sm font-semibold text-destructive">
+              ⚠️ ATENÇÃO: O envio da Nota Fiscal (XML ou PDF) é OBRIGATÓRIO. Sem o anexo da NF a solicitação NÃO será aceita.
+            </div>
             <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <Label>Tipo de Veículo *</Label>
@@ -165,8 +170,13 @@ export function SupplierAppointmentDialog({ open, onOpenChange, token, supplierI
                 <Input value={cargo.driver_contact} onChange={(e) => setCargo({ ...cargo, driver_contact: e.target.value })} placeholder="(00) 00000-0000" />
               </div>
               <div className="space-y-1">
-                <Label>NF (XML ou PDF) — opcional</Label>
-                <Input type="file" accept=".xml,.pdf" onChange={(e) => setNfFile(e.target.files?.[0] ?? null)} />
+                <Label className="text-destructive font-semibold">NF (XML ou PDF) * — OBRIGATÓRIO</Label>
+                <Input type="file" accept=".xml,.pdf" required onChange={(e) => setNfFile(e.target.files?.[0] ?? null)} className={nfFile ? "" : "border-destructive"} />
+                {nfFile ? (
+                  <p className="text-xs text-green-600">✓ Arquivo selecionado: {nfFile.name}</p>
+                ) : (
+                  <p className="text-xs text-destructive">Anexe a Nota Fiscal para conseguir avançar.</p>
+                )}
               </div>
               <div className="space-y-1">
                 <Label>Quantidade de Volumes *</Label>
