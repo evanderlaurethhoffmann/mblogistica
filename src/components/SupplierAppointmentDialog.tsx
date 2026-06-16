@@ -89,15 +89,15 @@ export function SupplierAppointmentDialog({ open, onOpenChange, token, supplierI
     }
     if (!cargo.nf_volumes || cargo.nf_volumes <= 0) { toast.error("Informe a quantidade de volumes."); return; }
     if (!nfFile) {
-      toast.error("Anexar a Nota Fiscal (XML ou PDF) é OBRIGATÓRIO para prosseguir.");
+      toast.error("Anexar a Nota Fiscal (XML, PDF ou Imagem) é OBRIGATÓRIO para prosseguir.");
       return;
     }
     const ext = nfFile.name.split(".").pop()?.toLowerCase() ?? "bin";
-    if (!["xml", "pdf"].includes(ext)) { toast.error("Arquivo da NF deve ser XML ou PDF."); return; }
+    const allowed = ["xml", "pdf", "jpg", "jpeg", "png", "webp"];
+    if (!allowed.includes(ext)) { toast.error("Arquivo da NF deve ser XML, PDF ou imagem (JPG, PNG, WEBP)."); return; }
     const path = `${supplierId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-    const { error } = await supabase.storage.from("nf-uploads").upload(path, nfFile, {
-      contentType: ext === "pdf" ? "application/pdf" : "application/xml",
-    });
+    const contentType = ext === "pdf" ? "application/pdf" : ext === "xml" ? "application/xml" : ext === "webp" ? "image/webp" : "image/jpeg";
+    const { error } = await supabase.storage.from("nf-uploads").upload(path, nfFile, { contentType });
     if (error) { toast.error(error.message); return; }
     setCargo((c) => ({ ...c, nf_file_url: path }));
     setStep(2);
