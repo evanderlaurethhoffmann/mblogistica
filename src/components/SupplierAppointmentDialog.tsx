@@ -170,8 +170,13 @@ export function SupplierAppointmentDialog({ open, onOpenChange, token, supplierI
                 <Input value={cargo.driver_contact} onChange={(e) => setCargo({ ...cargo, driver_contact: e.target.value })} placeholder="(00) 00000-0000" />
               </div>
               <div className="space-y-1">
-                <Label>NF (XML ou PDF) — opcional</Label>
-                <Input type="file" accept=".xml,.pdf" onChange={(e) => setNfFile(e.target.files?.[0] ?? null)} />
+                <Label className="text-destructive font-semibold">NF (XML ou PDF) * — OBRIGATÓRIO</Label>
+                <Input type="file" accept=".xml,.pdf" required onChange={(e) => setNfFile(e.target.files?.[0] ?? null)} className={nfFile ? "" : "border-destructive"} />
+                {nfFile ? (
+                  <p className="text-xs text-green-600">✓ Arquivo selecionado: {nfFile.name}</p>
+                ) : (
+                  <p className="text-xs text-destructive">Anexe a Nota Fiscal para conseguir avançar.</p>
+                )}
               </div>
               <div className="space-y-1">
                 <Label>Quantidade de Volumes *</Label>
