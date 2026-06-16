@@ -143,6 +143,9 @@ export function SupplierAppointmentDialog({ open, onOpenChange, token, supplierI
 
         {step === 1 && (
           <div className="space-y-4">
+            <div className="rounded-md border-2 border-destructive/60 bg-destructive/10 p-3 text-sm font-semibold text-destructive">
+              ⚠️ ATENÇÃO: O envio da Nota Fiscal (XML ou PDF) é OBRIGATÓRIO. Sem o anexo da NF a solicitação NÃO será aceita.
+            </div>
             <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <Label>Tipo de Veículo *</Label>
