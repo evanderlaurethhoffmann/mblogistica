@@ -64,7 +64,7 @@ export function SupplierAppointmentDialog({ open, onOpenChange, token, supplierI
       const [{ data: bd }, { data: ap }] = await Promise.all([
         supabase.from("blocked_dates").select("blocked_date").gte("blocked_date", fromStr).lte("blocked_date", toStr),
         supabase.from("appointments").select("scheduled_date, scheduled_time, status")
-          .gte("scheduled_date", fromStr).lte("scheduled_date", toStr).eq("status", "Confirmado"),
+          .gte("scheduled_date", fromStr).lte("scheduled_date", toStr).in("status", ["Pendente", "Confirmado"]),
       ]);
       setBlocked((bd ?? []).map((r: any) => r.blocked_date));
       const map: Record<string, string[]> = {};
