@@ -1,57 +1,65 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
-import { SupplierAuthProvider, useSupplierAuth } from "@/hooks/use-supplier-auth";
-import { Button } from "@/components/ui/button";
+import { createFileRoute } from "@tanstack/react-router";
 import { Card } from "@/components/ui/card";
-import { CalendarCheck, LogIn, UserPlus } from "lucide-react";
+import { AlertTriangle, ExternalLink } from "lucide-react";
 
 export const Route = createFileRoute("/portal/")({
   head: () => ({
     meta: [
-      { title: "Portal do Fornecedor — YAN" },
-      { name: "description", content: "Acesso de fornecedores para agendamento de entregas." },
+      { title: "Portal do Fornecedor — Novo Endereço" },
+      { name: "description", content: "O portal de agendamento mudou de endereço." },
     ],
   }),
-  component: () => (
-    <SupplierAuthProvider>
-      <PortalLanding />
-    </SupplierAuthProvider>
-  ),
+  component: PortalNoticePage,
 });
 
-function PortalLanding() {
-  const { supplier, loading } = useSupplierAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!loading && supplier) navigate({ to: "/portal/painel", replace: true });
-  }, [loading, supplier, navigate]);
-
+function PortalNoticePage() {
+  const newUrl = "https://logistica.mbfarmacias.com.br";
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary/30 flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-2xl">
         <div className="flex justify-center mb-8">
-          <img src="/logo.png" alt="YAN — Your Active Network" style={{ maxWidth: 200 }} className="h-auto" />
+          <img src="/logo.png" alt="MB Farmácias" style={{ maxWidth: 200 }} className="h-auto" />
         </div>
-        <Card className="p-8 text-center space-y-6">
-          <h1 className="text-2xl font-bold">Bem-vindo ao Portal do Fornecedor</h1>
-          <p className="text-muted-foreground">
-            Faça login com seu CNPJ para gerenciar seus agendamentos no Centro de Distribuição,
-            ou crie uma conta caso esta seja sua primeira solicitação.
-          </p>
-          <div className="grid sm:grid-cols-2 gap-3 pt-2">
-            <Button asChild size="lg" className="gap-2">
-              <Link to="/portal/login" search={{ tab: "login" }}><LogIn className="h-5 w-5" /> Entrar</Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="gap-2">
-              <Link to="/portal/login" search={{ tab: "register" }}><UserPlus className="h-5 w-5" /> Criar Conta</Link>
-            </Button>
+        <Card className="p-8 space-y-6 border-destructive/40">
+          <div className="flex items-center gap-3 justify-center text-destructive">
+            <AlertTriangle className="h-8 w-8" />
+            <h1 className="text-2xl font-bold">Atenção — Endereço Alterado</h1>
           </div>
-          <div className="pt-4 border-t">
-            <Button asChild variant="ghost" className="gap-2">
-              <Link to="/portal/login"><CalendarCheck className="h-4 w-4" /> Solicitar Agendamento</Link>
-            </Button>
+
+          <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 text-center space-y-2">
+            <p className="text-sm font-medium">
+              A página de agendamento de fornecedores foi <strong>migrada</strong> para um novo endereço:
+            </p>
+            <a
+              href={newUrl}
+              className="inline-flex items-center gap-2 text-lg font-bold text-primary hover:underline break-all"
+            >
+              <ExternalLink className="h-5 w-5 shrink-0" />
+              logistica.mbfarmacias.com.br
+            </a>
           </div>
+
+          <div className="space-y-3 text-sm text-muted-foreground">
+            <p>
+              ✅ <strong className="text-foreground">Novas solicitações</strong> de agendamento devem ser
+              realizadas exclusivamente através do novo link acima.
+            </p>
+            <p>
+              ✅ <strong className="text-foreground">Agendamentos já solicitados ou confirmados</strong> nesta
+              plataforma serão <strong className="text-foreground">mantidos normalmente</strong> e honrados pelo
+              Centro de Distribuição.
+            </p>
+            <p>
+              🚫 <strong className="text-foreground">O acesso ao login deste endereço foi desativado.</strong>
+            </p>
+          </div>
+
+          <a
+            href={newUrl}
+            className="block w-full text-center bg-primary text-primary-foreground rounded-md py-3 font-semibold hover:opacity-90 transition"
+          >
+            Ir para o novo portal →
+          </a>
         </Card>
         <p className="text-center text-xs text-muted-foreground mt-6">
           Em caso de dúvidas, entre em contato com o CD.
