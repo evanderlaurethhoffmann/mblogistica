@@ -35,7 +35,7 @@ function Painel() {
 
   const [items, setItems] = useState<any[]>([]);
   const [loadingList, setLoadingList] = useState(false);
-  const [open, setOpen] = useState(false);
+
 
   const refresh = useCallback(async () => {
     if (!token) return;
