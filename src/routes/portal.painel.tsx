@@ -143,11 +143,15 @@ function Painel() {
         </Card>
       </div>
 
-      <SupplierAppointmentDialog
-        open={open} onOpenChange={setOpen}
-        token={token} supplierId={supplier.supplier_id}
-        onCreated={refresh}
-      />
+      {/* Solicitação de novos agendamentos desativada — migração para logistica.mbfarmacias.com.br */}
+      {false && (
+        <SupplierAppointmentDialog
+          open={open} onOpenChange={setOpen}
+          token={token} supplierId={supplier.supplier_id}
+          onCreated={refresh}
+        />
+      )}
+
     </div>
   );
 }
