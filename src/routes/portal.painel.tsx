@@ -9,7 +9,9 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { CalendarPlus, LogOut, Info } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { LogOut, Info, AlertTriangle, ExternalLink } from "lucide-react";
+
 
 export const Route = createFileRoute("/portal/painel")({
   head: () => ({ meta: [{ title: "Meu Painel — YAN" }] }),
