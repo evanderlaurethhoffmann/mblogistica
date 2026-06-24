@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { SupplierAuthProvider, useSupplierAuth } from "@/hooks/use-supplier-auth";
 import { getSupplierAppointments } from "@/lib/supplier-auth.functions";
-import { SupplierAppointmentDialog } from "@/components/SupplierAppointmentDialog";
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
