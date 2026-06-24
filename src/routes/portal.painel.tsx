@@ -74,15 +74,27 @@ function Painel() {
           </div>
         </header>
 
-        <Card className="p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-primary/40">
-          <div>
-            <h2 className="font-semibold text-lg">Solicitar novo agendamento</h2>
-            <p className="text-sm text-muted-foreground">Preencha os dados da carga e escolha um horário disponível.</p>
-          </div>
-          <Button size="lg" onClick={() => setOpen(true)} className="gap-2">
-            <CalendarPlus className="h-5 w-5" /> Nova Solicitação de Agenda
-          </Button>
-        </Card>
+        <Alert variant="destructive" className="border-destructive/60">
+          <AlertTriangle className="h-5 w-5" />
+          <AlertTitle className="text-base font-bold">Atenção: Novas solicitações migraram de endereço</AlertTitle>
+          <AlertDescription className="space-y-3 mt-2">
+            <p>
+              As <strong>novas solicitações de agendamento</strong> agora devem ser feitas exclusivamente pelo novo portal:
+            </p>
+            <a
+              href="https://logistica.mbfarmacias.com.br"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 font-semibold underline underline-offset-4 break-all"
+            >
+              logistica.mbfarmacias.com.br <ExternalLink className="h-4 w-4" />
+            </a>
+            <p className="text-sm">
+              Solicitações já <strong>confirmadas</strong> ou <strong>pendentes</strong> registradas aqui serão mantidas normalmente. Este painel ficará disponível apenas para consulta.
+            </p>
+          </AlertDescription>
+        </Alert>
+
 
         <Card className="p-2">
           <div className="p-4 pb-2"><h2 className="font-semibold">Histórico de Solicitações</h2></div>
