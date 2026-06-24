@@ -3,13 +3,15 @@ import { useEffect, useState, useCallback } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { SupplierAuthProvider, useSupplierAuth } from "@/hooks/use-supplier-auth";
 import { getSupplierAppointments } from "@/lib/supplier-auth.functions";
-import { SupplierAppointmentDialog } from "@/components/SupplierAppointmentDialog";
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { CalendarPlus, LogOut, Info } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { LogOut, Info, AlertTriangle, ExternalLink } from "lucide-react";
+
 
 export const Route = createFileRoute("/portal/painel")({
   head: () => ({ meta: [{ title: "Meu Painel — YAN" }] }),
@@ -33,7 +35,7 @@ function Painel() {
 
   const [items, setItems] = useState<any[]>([]);
   const [loadingList, setLoadingList] = useState(false);
-  const [open, setOpen] = useState(false);
+
 
   const refresh = useCallback(async () => {
     if (!token) return;
@@ -72,15 +74,27 @@ function Painel() {
           </div>
         </header>
 
-        <Card className="p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-primary/40">
-          <div>
-            <h2 className="font-semibold text-lg">Solicitar novo agendamento</h2>
-            <p className="text-sm text-muted-foreground">Preencha os dados da carga e escolha um horário disponível.</p>
-          </div>
-          <Button size="lg" onClick={() => setOpen(true)} className="gap-2">
-            <CalendarPlus className="h-5 w-5" /> Nova Solicitação de Agenda
-          </Button>
-        </Card>
+        <Alert variant="destructive" className="border-destructive/60">
+          <AlertTriangle className="h-5 w-5" />
+          <AlertTitle className="text-base font-bold">Atenção: Novas solicitações migraram de endereço</AlertTitle>
+          <AlertDescription className="space-y-3 mt-2">
+            <p>
+              As <strong>novas solicitações de agendamento</strong> agora devem ser feitas exclusivamente pelo novo portal:
+            </p>
+            <a
+              href="https://logistica.mbfarmacias.com.br"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 font-semibold underline underline-offset-4 break-all"
+            >
+              logistica.mbfarmacias.com.br <ExternalLink className="h-4 w-4" />
+            </a>
+            <p className="text-sm">
+              Solicitações já <strong>confirmadas</strong> ou <strong>pendentes</strong> registradas aqui serão mantidas normalmente. Este painel ficará disponível apenas para consulta.
+            </p>
+          </AlertDescription>
+        </Alert>
+
 
         <Card className="p-2">
           <div className="p-4 pb-2"><h2 className="font-semibold">Histórico de Solicitações</h2></div>
@@ -129,11 +143,7 @@ function Painel() {
         </Card>
       </div>
 
-      <SupplierAppointmentDialog
-        open={open} onOpenChange={setOpen}
-        token={token} supplierId={supplier.supplier_id}
-        onCreated={refresh}
-      />
     </div>
   );
 }
+

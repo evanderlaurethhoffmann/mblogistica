@@ -161,36 +161,13 @@ const NewApptSchema = z.object({
 
 export const createSupplierAppointment = createServerFn({ method: "POST" })
   .inputValidator((i) => NewApptSchema.parse(i))
-  .handler(async ({ data }) => {
-    const s = await getSupplierFromToken(data.token);
-    // Bloqueio de slot: impede solicitar horário já reservado (Pendente ou Confirmado).
-    const { data: conflict, error: conflictErr } = await sb()
-      .from("appointments")
-      .select("id")
-      .eq("scheduled_date", data.scheduled_date)
-      .eq("scheduled_time", data.scheduled_time)
-      .in("status", ["Pendente", "Confirmado"])
-      .limit(1);
-    if (conflictErr) throw new Error(conflictErr.message);
-    if (conflict && conflict.length > 0) {
-      throw new Error("Este horário acabou de ser reservado por outro fornecedor. Escolha outro horário.");
-    }
-    const { data: row, error } = await sb().from("appointments").insert({
-      supplier_id: s.id,
-      vehicle_type: data.vehicle_type,
-      vehicle_plate: data.vehicle_plate.toUpperCase().trim(),
-      cargo_type: data.cargo_type,
-      driver_contact: data.driver_contact,
-      nf_volumes: data.nf_volumes,
-      nf_file_url: data.nf_file_url ?? null,
-      scheduled_date: data.scheduled_date,
-      scheduled_time: data.scheduled_time,
-      estimated_minutes: data.estimated_minutes,
-      status: "Pendente",
-    }).select("id, protocol").single();
-    if (error) throw new Error(error.message);
-    return { id: row.id, protocol: row.protocol };
+  .handler(async ({ data: _data }) => {
+    // Bloqueio total: novas solicitações migraram para logistica.mbfarmacias.com.br
+    throw new Error(
+      "As solicitações de agendamento foram migradas para https://logistica.mbfarmacias.com.br. Acesse o novo portal para solicitar horários.",
+    );
   });
+
 
 // ---- Admin ----
 const AdminResetSchema = z.object({

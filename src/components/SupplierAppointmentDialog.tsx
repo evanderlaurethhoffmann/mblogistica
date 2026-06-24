@@ -120,7 +120,9 @@ export function SupplierAppointmentDialog({ open, onOpenChange, token, supplierI
         scheduled_time: schedule.time,
         estimated_minutes: schedule.estimated_minutes,
       } });
-      setProtocolo(res.protocol ?? res.id.slice(0, 8).toUpperCase());
+      const r: any = res;
+      setProtocolo(r?.protocol ?? r?.id?.slice(0, 8).toUpperCase() ?? "");
+
       setStep(3);
       onCreated?.();
     } catch (e: any) {
