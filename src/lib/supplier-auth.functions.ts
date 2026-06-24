@@ -162,7 +162,11 @@ const NewApptSchema = z.object({
 export const createSupplierAppointment = createServerFn({ method: "POST" })
   .inputValidator((i) => NewApptSchema.parse(i))
   .handler(async ({ data }) => {
+    // Bloqueio total: novas solicitações migraram para logistica.mbfarmacias.com.br
+    throw new Error("As solicitações de agendamento foram migradas para https://logistica.mbfarmacias.com.br. Acesse o novo portal para solicitar horários.");
+    // eslint-disable-next-line @typescript-eslint/no-unreachable
     const s = await getSupplierFromToken(data.token);
+
     // Bloqueio de slot: impede solicitar horário já reservado (Pendente ou Confirmado).
     const { data: conflict, error: conflictErr } = await sb()
       .from("appointments")
